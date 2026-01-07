@@ -8,7 +8,7 @@ import java.net.*;
  * <h6>This is the Server for the Tic Tac Toe Game</h6>
  * <h6><u>!!!Attention the IPs must be set to the IPs of the Clients!!!</u></h6>
  * 
- * @version 0.1
+ * @version 1.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
@@ -18,6 +18,11 @@ public class Server {
 	// Board als Array
 	public static char[] board = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
+	/** 
+	 * Mainfunction for the Server
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 //		------------------------Variables-------------------------
 
@@ -90,7 +95,9 @@ public class Server {
 					break; // <-- important
 				}
 			}
-
+			/**
+			 * Normal Gamemode if playing is true and botPlaying is false
+			 */
 			while (playing && !botPlaying) {
 				player1Ready = false;
 				player2Ready = false;
@@ -105,6 +112,7 @@ public class Server {
 				InetAddress sender = packet.getAddress();
 				char playerSymbol = sender.equals(player1) ? 'X' : 'O';
 
+				//Makes sure that the move comes from the right player
 				if ((currentPlayer && sender.equals(player2)) || (!currentPlayer && sender.equals(player1))) {
 					int move = Integer.parseInt(msg);
 					// nur setzen, wenn Feld frei
@@ -179,6 +187,9 @@ public class Server {
 					}
 				}
 			}
+			/**
+			 * Botgamemode if playing and botPlaying are both true
+			 */
 			while (playing && botPlaying) {
 				player1Ready = false;
 				player2Ready = false;
@@ -186,15 +197,17 @@ public class Server {
 				String msg;
 				int move;
 
+				//Sends the Message to the player, that it is his turn
 				if (currentPlayer == false) {
 					sendMessageToPlayer(activePlayer, socket, "Message: Your Move");
 				}
-				// Spieler anhand der Absenderadresse bestimmen und Zeichen korrekt ändern
 
+				//If the currentPlayer is true (bot), than it makes the botmove and sends it to the player
 				if (currentPlayer) {
 					currentPlayer = false;
 					msg = bot.calculateMove(board);
 					move = Integer.parseInt(msg);
+
 					// nur setzen, wenn Feld frei
 					if (move >= 1 && move <= 9) {
 						if (board[move - 1] != 'X' && board[move - 1] != 'O') {
@@ -212,7 +225,9 @@ public class Server {
 							win(activePlayer, socket, fullCounter);
 						}
 					}
-				} else if (!currentPlayer) {
+				} 
+				//If the currentPlayer is false (activePlayer), make the player do a move
+				else if (!currentPlayer) {
 					DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 					socket.receive(packet);
 					InetAddress sender = packet.getAddress();
@@ -220,6 +235,7 @@ public class Server {
 					msg = new String(packet.getData(), 0, packet.getLength()).trim();
 					System.out.println("Received: " + msg);
 
+					//Makes sure that the move comes from the player1
 					if ((!currentPlayer && sender.equals(activePlayer))) {
 						move = Integer.parseInt(msg);
 
@@ -264,6 +280,13 @@ public class Server {
 		}
 	}
 
+	/** 
+	 * Handels the different kind of wins/draws
+	 * @param activePlayer
+	 * @param socket
+	 * @param fullCounter
+	 * @throws IOException
+	 */
 	public static void win(InetAddress activePlayer, DatagramSocket socket, int fullCounter) throws IOException {
 		if (checkWin(board, 'X')) {
 			sendMessageToPlayer(activePlayer, socket, "Message: X won!");
@@ -287,6 +310,11 @@ public class Server {
 		}
 	}
 
+	/** 
+	 * Transforms the board to a String
+	 * @param board
+	 * @return String
+	 */
 	public static String boardToString(char[] board) {
 		String boardStateString = "_________\n" + board[0] + " | " + board[1] + " | " + board[2] + "\n" + "--+---+--\n"
 				+ board[3] + " | " + board[4] + " | " + board[5] + "\n" + "--+---+--\n" + board[6] + " | " + board[7]
@@ -294,6 +322,14 @@ public class Server {
 		return boardStateString;
 	}
 
+	/** 
+	 * Sends current Board to all Players
+	 * @param board
+	 * @param player1
+	 * @param player2
+	 * @param socket
+	 * @throws IOException
+	 */
 	public static void sendCurrentBoard(char[] board, InetAddress player1, InetAddress player2, DatagramSocket socket)
 			throws IOException {
 		String boardStateString = "_________\n" + board[0] + " | " + board[1] + " | " + board[2] + "\n" + "--+---+--\n"
@@ -309,6 +345,12 @@ public class Server {
 		socket.send(board2);
 	}
 
+	/** 
+	 * Checks for a win on the board
+	 * @param board
+	 * @param player
+	 * @return boolean
+	 */
 	public static boolean checkWin(char[] board, char player) {
 		if (board[0] == player && board[1] == player && board[2] == player)
 			return true;
@@ -334,6 +376,13 @@ public class Server {
 		return false;
 	}
 
+	/** 
+	 * Sends Messages to certain Players
+	 * @param Player
+	 * @param socket
+	 * @param msg
+	 * @throws IOException
+	 */
 	public static void sendMessageToPlayer(InetAddress Player, DatagramSocket socket, String msg) throws IOException {
 		byte[] data = msg.getBytes();
 		DatagramPacket Message = new DatagramPacket(data, data.length, Player, 6970);
