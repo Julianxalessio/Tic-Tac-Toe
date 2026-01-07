@@ -21,6 +21,11 @@ import java.net.InetAddress;
 
 public class Player2 {
 
+	/**
+	 * Color for TicTacToe-Game
+	 * @param c
+	 * @return
+	 */
 	public static String colorize(char c) {
 		if (c == 'X') {
 			return RED + c + RESET;
@@ -38,6 +43,11 @@ public class Player2 {
 	public static final String RED = "\u001B[31m";
 	public static final String BLUE = "\u001B[34m";
 
+	/**
+	 * Main Method with Send-, Receive- and Winning/Draw Logic
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 
 		InetAddress server = InetAddress.getByName("192.168.1.94"); // Serveradresse
