@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"Alle Klassen und Schnittstellen","u":"allclasses-index.html","k":"18"},{"p":"Server","l":"botClass"},{"p":"Server","l":"botNetwork"},{"p":"Clients","l":"Player1"},{"p":"Clients","l":"Player2"},{"p":"Server","l":"Server"}];updateSearchResults();
