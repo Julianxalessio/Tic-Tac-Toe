@@ -1,4 +1,4 @@
-package TicTacToe;
+package Server;
 
 import java.io.IOException;
 import java.net.*;

@@ -1,4 +1,4 @@
-package TicTacToe;
+package Server;
 import java.util.Random;
 
 public class botNetwork {
