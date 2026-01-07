@@ -11,15 +11,20 @@ import java.net.InetAddress;
  * <h2>Script allows to send messages/responses to Server and play TicTacToe</h2>
  * 
  * !Warning: Start the Server before starting the Player-Script!
- * @version 0.1
+ * @version 1.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
  */
 
 public class botClass {
+
+    /**
+     * Convertes Board-Array to Int
+     * @param boardChar
+     * @return
+     */
 	public String calculateMove(char[] boardChar) {
-		String move = "6";
 		// Board Repräsentation: 0 = leer, 1 = X, 2 = O
 		
 		int[] board = new int[9];
