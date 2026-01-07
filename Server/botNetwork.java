@@ -1,8 +1,24 @@
 package Server;
 import java.util.Random;
 
+/**
+ * <h1>Bot</h1>
+ * <h6>This is the minmaxed bot which calculates the actual move</h6>
+ * 
+ * @version 1.0
+ * @author Julian Lombardo
+ * @author Diego Zwahlen
+ * @author Lean Melone
+ * @author Claude AI
+ */
+
 public class botNetwork {
     
+    /** 
+     * Gets the best move
+     * @param board
+     * @return int
+     */
     public int getBestMove(int[] board) {
         var start = System.nanoTime();
         float bestEval = -1000;
@@ -31,10 +47,24 @@ public class botNetwork {
         }
     }
 
+    /** 
+     * Gets the time which it needed to perform the move
+     * @param start
+     * @return float
+     */
     static float getTime(long start) {
         return (float) (System.nanoTime() - start) / 1_000_000;
     }
 
+    /** 
+     * The minmax algorythm (brain)
+     * @param board
+     * @param depth
+     * @param alpha
+     * @param beta
+     * @param isMaximizing
+     * @return float
+     */
     float minimax(int[] board, int depth, float alpha, float beta, boolean isMaximizing) {
         int gameState = checkGameOver(board);
         
@@ -71,6 +101,11 @@ public class botNetwork {
         }
     }
     
+    /** 
+     * Wincondition checker
+     * @param board
+     * @return int
+     */
     private int checkGameOver(int[] board) {
         // Gewinnkombinationen prüfen
         int[][] winPatterns = {
