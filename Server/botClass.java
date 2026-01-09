@@ -1,11 +1,5 @@
 package Server;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-
 /**
  * <h1>TicTacToe Bot-Script</h1>
  * <h2>Script allows to send messages/responses to Server and play TicTacToe</h2>

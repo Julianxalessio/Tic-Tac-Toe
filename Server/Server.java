@@ -26,9 +26,6 @@ public class Server {
     
     public static boolean player1Ready = false, player2Ready = false;
  
- 
- 
- 
     /**
      * Mainfunction for the Server
      * @param args
