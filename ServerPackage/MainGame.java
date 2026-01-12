@@ -1,4 +1,4 @@
-package Server;
+package ServerPackage;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,7 +25,7 @@ public class MainGame {
 			InetAddress sender = packet.getAddress();
 			if (msgParts.length == 3) {
 				if (msgParts[0].equals("main")) {
-					if (msgParts[1].equals("Create Server")) {
+					if (msgParts[1].equals("Create Server_bot")) {
 						if (msgParts[2].matches("\\^[0-9]{4}$")) {
 							int items = servers.size();
 							for (String[] entry : servers) {

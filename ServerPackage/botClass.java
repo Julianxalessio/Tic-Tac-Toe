@@ -1,4 +1,4 @@
-package Server;
+package ServerPackage;
 /**
  * <h1>TicTacToe Bot-Script</h1>
  * <h2>Script allows to send messages/responses to Server and play TicTacToe</h2>

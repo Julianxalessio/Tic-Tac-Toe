@@ -62,7 +62,28 @@ public class Player1 {
 		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
 		boolean alreadyPlayed = false;
+		System.out.print("Create a new game or join existing one? (create/join): ");
+		String serverType = stdin.readLine();
+		System.out.println();
+		System.out.print("Enter Server ID (format: 1234): ");
+		String serverID = stdin.readLine();
+		System.out.println();
+		if (serverType.equals("create")) {
+			System.out.print("With bot: (yes/no) ");
+			String botType = stdin.readLine();
+			if (botType.equals("yes")) {
+				serverType = "Create Server_bot";
+			} else {
+				serverType = "Create Server";
+			}
 
+		} else if (serverType.equals("join")) {
+			serverType = "Join Server";
+		}
+		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
+		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, serverPort);
+		socketSend.send(serverStartMessagePacket);
+	/* 
 		// Spielstartfrage direkt beim Start
 		System.out.print("Start the Game (yes/no) [Add '_bot' if playing with AI]: ");
 		String startInput = stdin.readLine();
@@ -186,5 +207,6 @@ public class Player1 {
 				}
 			}
 		}
+			*/
 	}
 }
