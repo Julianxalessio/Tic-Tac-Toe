@@ -52,7 +52,7 @@ public class Player1 {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		InetAddress server = InetAddress.getByName("192.168.1.94"); // Serveradresse
+		InetAddress server = InetAddress.getByName("172.16.99.27"); // Serveradresse
 		int serverPort = 6969; // Server-Port
 		int clientPort = 6970; // Client-Port
 
@@ -62,6 +62,8 @@ public class Player1 {
 		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
 		boolean alreadyPlayed = false;
+
+		/*
 		System.out.print("Create a new game or join existing one? (create/join): ");
 		String serverType = stdin.readLine();
 		System.out.println();
@@ -83,7 +85,7 @@ public class Player1 {
 		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
 		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, serverPort);
 		socketSend.send(serverStartMessagePacket);
-	/* 
+		*/
 		// Spielstartfrage direkt beim Start
 		System.out.print("Start the Game (yes/no) [Add '_bot' if playing with AI]: ");
 		String startInput = stdin.readLine();
@@ -207,6 +209,5 @@ public class Player1 {
 				}
 			}
 		}
-			*/
 	}
 }
