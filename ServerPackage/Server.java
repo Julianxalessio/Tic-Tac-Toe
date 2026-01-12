@@ -16,7 +16,17 @@ import java.net.*;
 public class Server {
     public static boolean playing = false;
     // Board als Array
-    public static char[] board = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+    public static char[] board = {
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9'
+    };
 
     public static int time = 60;
 
@@ -25,24 +35,35 @@ public class Server {
     public static InetAddress activePlayer;
 
     public static boolean player1Ready = false, player2Ready = false;
+    public String player1IP;
+    public String player2IP;
+    public DatagramSocket socket;
+    public String serverId;
 
     /**
-     * Mainfunction for the Server
+     * Contructor for Server
      * @throws Exception
      */
-    public Server(String player1IP, String player2IP, DatagramSocket socket) throws Exception {
-//      ------------------------Variables-------------------------
-        int random = (int) (Math.random() * 2) + 1;
+    public Server(String player1IP, String player2IP, DatagramSocket socket, String serverID) {
+        this.player1IP = player1IP;
+        this.player2IP = player2IP;
+        this.socket = socket;
+        this.serverId = serverID;
+    }
+    //      ------------------------Variables-------------------------
 
+
+    public void startServer() throws Exception {
+        int random = (int)(Math.random() * 2) + 1;
         boolean currentPlayer = false; // false = player1 & true = player2
         if (random == 1) currentPlayer = false;
         else currentPlayer = true;
 
-        botClass bot = new botClass();
+        BotClass bot = new BotClass();
         InetAddress player1 = InetAddress.getByName(player1IP);
         InetAddress player2 = InetAddress.getByName(player2IP);
 
-//      ------------------------Game-------------------------
+        //      ------------------------Game-------------------------
         System.out.println("TicTacToe Server ready");
         while (true) {
             while (!playing) {
@@ -54,31 +75,33 @@ public class Server {
 
                 String msg = new String(packet.getData(), 0, packet.getLength()).trim();
                 System.out.println("Received: " + msg);
+                String[] msgParts = msg.split(";");
+
 
                 InetAddress sender = packet.getAddress();
 
+                if (msgParts[0].equals(serverId)) {
 
-                if (sender.equals(player1) && msg.equals("yes")) {
-                    player1Ready = true;
-                    startTimer(player1Ready, player2Ready);
-                } else if (sender.equals(player2) && msg.equals("yes")) {
-                    player2Ready = true;
-                    startTimer(player1Ready, player2Ready);
-                }else if (sender.equals(player2) && msg.equals("yes_bot")) {
-                    activePlayer = player2;
-                    playing = true;
-                    botPlaying = true;
-                    botPlaying = true;
-                    String stringBoard = boardToString(board);
-                    sendMessageToPlayer(activePlayer, socket, stringBoard);
-                    break;
-                } else if (sender.equals(player1) && msg.equals("yes_bot")) {
-                    activePlayer = player1;
-                    playing = true;
-                    botPlaying = true;
-                    String stringBoard = boardToString(board);
-                    sendMessageToPlayer(activePlayer, socket, stringBoard);
-                    break;
+                    if (sender.equals(player1) && msgParts[1].equals("yes")) {
+                        player1Ready = true;
+                    } else if (sender.equals(player2) && msg.equals("yes")) {
+                        player2Ready = true;
+                    } else if (sender.equals(player2) && msg.equals("yes_bot")) {
+                        activePlayer = player2;
+                        playing = true;
+                        botPlaying = true;
+                        botPlaying = true;
+                        String stringBoard = boardToString(board);
+                        sendMessageToPlayer(activePlayer, socket, stringBoard);
+                        break;
+                    } else if (sender.equals(player1) && msg.equals("yes_bot")) {
+                        activePlayer = player1;
+                        playing = true;
+                        botPlaying = true;
+                        String stringBoard = boardToString(board);
+                        sendMessageToPlayer(activePlayer, socket, stringBoard);
+                        break;
+                    }
                 }
                 if (player1Ready && player2Ready) {
                     playing = true;
@@ -130,7 +153,7 @@ public class Server {
                                 sendMessageToPlayer(player2, socket, "Message: X won!");
                                 playing = false;
                                 for (int i = 1; i <= 9; i++) {
-                                    board[i - 1] = (char) ('0' + i); // '0' hat den Wert 48
+                                    board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
                                 }
                                 break;
                             } else if (checkWin(board, 'O')) {
@@ -138,7 +161,7 @@ public class Server {
                                 sendMessageToPlayer(player2, socket, "Message: O won!");
                                 playing = false;
                                 for (int i = 1; i <= 9; i++) {
-                                    board[i - 1] = (char) ('0' + i); // '0' hat den Wert 48
+                                    board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
                                 }
                                 break;
 
@@ -147,7 +170,7 @@ public class Server {
                                 sendMessageToPlayer(player2, socket, "Message: Draw!");
                                 playing = false;
                                 for (int i = 1; i <= 9; i++) {
-                                    board[i - 1] = (char) ('0' + i); // '0' hat den Wert 48
+                                    board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
                                 }
                                 break;
                             }
@@ -255,7 +278,7 @@ public class Server {
                                 System.out.println("Feld " + move + " ist schon belegt!");
                                 if (currentPlayer == false) {
                                     sendMessageToPlayer(activePlayer, socket,
-                                            "Message: Dieses Feld ist bereits belegt!");
+                                        "Message: Dieses Feld ist bereits belegt!");
                                 }
                             }
                         } else {
@@ -289,20 +312,20 @@ public class Server {
             sendMessageToPlayer(activePlayer, socket, "Message: X won!");
             playing = false;
             for (int i = 1; i <= 9; i++) {
-                board[i - 1] = (char) ('0' + i); // '0' hat den Wert 48
+                board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
             }
         } else if (checkWin(board, 'O')) {
             sendMessageToPlayer(activePlayer, socket, "Message: O won!");
             playing = false;
             for (int i = 1; i <= 9; i++) {
-                board[i - 1] = (char) ('0' + i); // '0' hat den Wert 48
+                board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
             }
 
         } else if (fullCounter == 9 && !checkWin(board, 'X') && !checkWin(board, 'O')) {
             sendMessageToPlayer(activePlayer, socket, "Message: Draw!");
             playing = false;
             for (int i = 1; i <= 9; i++) {
-                board[i - 1] = (char) ('0' + i); // '0' hat den Wert 48
+                board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
             }
         }
     }
@@ -313,9 +336,9 @@ public class Server {
      * @return String
      */
     public static String boardToString(char[] board) {
-        String boardStateString = "_________\n" + board[0] + " | " + board[1] + " | " + board[2] + "\n" + "--+---+--\n"
-                + board[3] + " | " + board[4] + " | " + board[5] + "\n" + "--+---+--\n" + board[6] + " | " + board[7]
-                + " | " + board[8] + "\n";
+        String boardStateString = "_________\n" + board[0] + " | " + board[1] + " | " + board[2] + "\n" + "--+---+--\n" +
+            board[3] + " | " + board[4] + " | " + board[5] + "\n" + "--+---+--\n" + board[6] + " | " + board[7] +
+            " | " + board[8] + "\n";
         return boardStateString;
     }
 
@@ -328,10 +351,10 @@ public class Server {
      * @throws IOException
      */
     public static void sendCurrentBoard(char[] board, InetAddress player1, InetAddress player2, DatagramSocket socket)
-            throws IOException {
-        String boardStateString = "_________\n" + board[0] + " | " + board[1] + " | " + board[2] + "\n" + "--+---+--\n"
-                + board[3] + " | " + board[4] + " | " + board[5] + "\n" + "--+---+--\n" + board[6] + " | " + board[7]
-                + " | " + board[8] + "\n";
+    throws IOException {
+        String boardStateString = "_________\n" + board[0] + " | " + board[1] + " | " + board[2] + "\n" + "--+---+--\n" +
+            board[3] + " | " + board[4] + " | " + board[5] + "\n" + "--+---+--\n" + board[6] + " | " + board[7] +
+            " | " + board[8] + "\n";
 
         System.out.println(boardStateString);
 
@@ -385,21 +408,4 @@ public class Server {
         DatagramPacket Message = new DatagramPacket(data, data.length, Player, 6970);
         socket.send(Message);
     }
-
-    public static void startTimer(boolean player1Ready, boolean player2Ready) {
-        if ((!player1Ready && player2Ready) || (player1Ready && !player2Ready)) {
-            new Thread(() -> {
-                time = 60;
-                while (time >= 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    time--;
-                }
-            }).start();
-        }
-    }
 }
- 

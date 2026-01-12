@@ -10,8 +10,10 @@ package ServerPackage;
  * @author Lean Melone
  */
 
-public class botClass {
+public class BotClass {
 
+    public BotClass() {
+    }
     /**
      * Convertes Board-Array to Int
      * @param boardChar

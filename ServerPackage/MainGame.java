@@ -9,9 +9,9 @@ import java.util.List;
 public class MainGame {
 
 	public static void main(String[] args) throws Exception {
-		List<String[]> servers = new ArrayList<>();
+		final List<String[]> servers = new ArrayList<>();
 		int port = 6969;
-		DatagramSocket socket = new DatagramSocket(port);
+		final DatagramSocket socket = new DatagramSocket(port);
 		System.out.println("ServerCreater Ready!");
 		boolean active = true;
 		while (active) {
@@ -26,7 +26,7 @@ public class MainGame {
 			if (msgParts.length == 3) {
 				if (msgParts[0].equals("main")) {
 					if (msgParts[1].equals("Create Server_bot")) {
-						if (msgParts[2].matches("\\^[0-9]{4}$")) {
+						if (msgParts[2].matches("^[0-9]{4}$")) {
 							int items = servers.size();
 							for (String[] entry : servers) {
 								if (entry[0].equals(msgParts[2])) {
@@ -40,7 +40,7 @@ public class MainGame {
 							}
 						}
 					} else if (msgParts[1].equals("Create Server")) {
-						if (msgParts[2].matches("\\^[0-9]{4}$")) {
+						if (msgParts[2].matches("^[0-9]{4}$")) {
 							int items = servers.size();
 							for (String[] entry : servers) {
 								if (entry[0].equals(msgParts[2])) {
@@ -55,14 +55,21 @@ public class MainGame {
 						}
 					}
 					else if (msgParts[1].equals("Join Server")) {
-						if (msgParts[2].matches("\\^[0-9]{4}$")) {
+						if (msgParts[2].matches("^[0-9]{4}$")) {
 							int items = servers.size();
 							for (int i = 0; i < servers.size(); i++) {
 								if (servers.get(i)[0].equals(msgParts[2])) {
 									servers.get(i)[2] = sender.getHostAddress();
 									int finalI = i;
+									Server server = new Server(servers.get(finalI)[1],servers.get(finalI)[2], socket, msgParts[2]);
 									new Thread(){
-										Server server = new Server(servers.get(finalI)[1],servers.get(finalI)[2], socket);
+										public void run() {
+											try {
+												server.startServer();
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
 									}.start();
 									
 								} else
@@ -78,7 +85,6 @@ public class MainGame {
 					System.out.println("");
 				}
 			}
-			socket.close();
 		}
 	}
 }
