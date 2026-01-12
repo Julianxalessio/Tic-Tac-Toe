@@ -1,4 +1,3 @@
-package Server;
 import java.util.Random;
 
 /**
