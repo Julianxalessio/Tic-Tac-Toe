@@ -63,7 +63,7 @@ public class Player1 {
 
 		boolean alreadyPlayed = false;
 
-		/*
+
 		System.out.print("Create a new game or join existing one? (create/join): ");
 		String serverType = stdin.readLine();
 		System.out.println();
@@ -85,7 +85,7 @@ public class Player1 {
 		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
 		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, serverPort);
 		socketSend.send(serverStartMessagePacket);
-		*/
+
 		// Spielstartfrage direkt beim Start
 		System.out.print("Start the Game (yes/no) [Add '_bot' if playing with AI]: ");
 		String startInput = stdin.readLine();
@@ -99,8 +99,10 @@ public class Player1 {
 			System.exit(0);
 		}
 
+		String StartInputWithID = serverID + ";" + startInput;
+
 		// Sende Startnachricht an Server
-		byte[] startData = startInput.getBytes();
+		byte[] startData = StartInputWithID.getBytes();
 		DatagramPacket startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
 		socketSend.send(startPacket);
 
