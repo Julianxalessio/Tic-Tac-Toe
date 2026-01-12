@@ -34,7 +34,7 @@ public class BotClass {
                 board[i] = 2;
             }
         }
-		botNetwork bot = new botNetwork();
+		BotNetwork bot = new BotNetwork();
 		int bestMoveInt = bot.getBestMove(board) + 1; // Gibt Index 0-8 zurück
 		String bestMove = Integer.toString(bestMoveInt);
 		

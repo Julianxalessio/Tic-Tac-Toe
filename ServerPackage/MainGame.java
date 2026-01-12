@@ -45,12 +45,13 @@ public class MainGame {
 							for (String[] entry : servers) {
 								if (entry[0].equals(msgParts[2])) {
 									System.out.println("Server already Exists");
-//									Message Player that ID is already in use
+									//!!! Message Player that ID is already in use
 								} else
 									items--;
 							}
 							if (items <= 0) {
 								servers.add(new String[] { msgParts[2], sender.getHostAddress(), "" });
+								//!!! Message Player Server Created
 							}
 						}
 					}
@@ -59,9 +60,11 @@ public class MainGame {
 							int items = servers.size();
 							for (int i = 0; i < servers.size(); i++) {
 								if (servers.get(i)[0].equals(msgParts[2])) {
+									if (!servers.get(i)[2].equals("")) {
 									servers.get(i)[2] = sender.getHostAddress();
 									int finalI = i;
 									Server server = new Server(servers.get(finalI)[1],servers.get(finalI)[2], socket, msgParts[2]);
+									//!!! Message both Players Game Starting
 									new Thread(){
 										public void run() {
 											try {
@@ -71,7 +74,10 @@ public class MainGame {
 											}
 										}
 									}.start();
-									
+									} else {
+										System.out.println("Server Full");
+										//!!! Message Player Server Full
+									}
 								} else
 									items--;
 							}

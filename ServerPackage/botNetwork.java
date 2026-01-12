@@ -13,7 +13,7 @@ import java.util.Random;
  * @author Claude AI
  */
 
-public class botNetwork {
+public class BotNetwork {
     
     /** 
      * Gets the best move
