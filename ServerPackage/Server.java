@@ -126,84 +126,89 @@ public class Server {
                 socket.receive(packet);
 
                 String msg = new String(packet.getData(), 0, packet.getLength()).trim();
-                System.out.println("Received: " + msg);
+                String[] msgParts = msg.split(";");
 
-                // Spieler anhand der Absenderadresse bestimmen und Zeichen korrekt ändern
+
                 InetAddress sender = packet.getAddress();
-                char playerSymbol = sender.equals(player1) ? 'X' : 'O';
 
-                //Makes sure that the move comes from the right player
-                if ((currentPlayer && sender.equals(player2)) || (!currentPlayer && sender.equals(player1))) {
-                    int move = Integer.parseInt(msg);
-                    // nur setzen, wenn Feld frei
-                    if (move >= 1 && move <= 9) {
-                        if (board[move - 1] != 'X' && board[move - 1] != 'O') {
+                if (msgParts[0].equals(serverId)) {
 
-                            board[move - 1] = playerSymbol;
-                            sendCurrentBoard(board, player1, player2, socket);
-                            int fullCounter = 0;
-                            for (int i = 0; i < 9; i++) {
-                                if (board[i] == 'X' || board[i] == 'O') {
-                                    fullCounter++;
-                                }
-                            }
-                            currentPlayer = !currentPlayer;
-                            if (checkWin(board, 'X')) {
-                                sendMessageToPlayer(player1, socket, "Message: X won!");
-                                sendMessageToPlayer(player2, socket, "Message: X won!");
-                                playing = false;
-                                for (int i = 1; i <= 9; i++) {
-                                    board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
-                                }
-                                break;
-                            } else if (checkWin(board, 'O')) {
-                                sendMessageToPlayer(player1, socket, "Message: O won!");
-                                sendMessageToPlayer(player2, socket, "Message: O won!");
-                                playing = false;
-                                for (int i = 1; i <= 9; i++) {
-                                    board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
-                                }
-                                break;
+                    // Spieler anhand der Absenderadresse bestimmen und Zeichen korrekt ändern
+                    char playerSymbol = sender.equals(player1) ? 'X' : 'O';
 
-                            } else if (fullCounter == 9 && !checkWin(board, 'X') && !checkWin(board, 'O')) {
-                                sendMessageToPlayer(player1, socket, "Message: Draw!");
-                                sendMessageToPlayer(player2, socket, "Message: Draw!");
-                                playing = false;
-                                for (int i = 1; i <= 9; i++) {
-                                    board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
-                                }
-                                break;
-                            }
+                    //Makes sure that the move comes from the right player
+                    if ((currentPlayer && sender.equals(player2)) || (!currentPlayer && sender.equals(player1))) {
+                        int move = Integer.parseInt(msg);
+                        // nur setzen, wenn Feld frei
+                        if (move >= 1 && move <= 9) {
+                            if (board[move - 1] != 'X' && board[move - 1] != 'O') {
 
-                            if (currentPlayer == false) {
-                                sendMessageToPlayer(player1, socket, "Message: Your Move");
-                            } else if (currentPlayer == true) {
-                                sendMessageToPlayer(player2, socket, "Message: Your Move");
+                                board[move - 1] = playerSymbol;
+                                sendCurrentBoard(board, player1, player2, socket);
+                                int fullCounter = 0;
+                                for (int i = 0; i < 9; i++) {
+                                    if (board[i] == 'X' || board[i] == 'O') {
+                                        fullCounter++;
+                                    }
+                                }
+                                currentPlayer = !currentPlayer;
+                                if (checkWin(board, 'X')) {
+                                    sendMessageToPlayer(player1, socket, "Message: X won!");
+                                    sendMessageToPlayer(player2, socket, "Message: X won!");
+                                    playing = false;
+                                    for (int i = 1; i <= 9; i++) {
+                                        board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
+                                    }
+                                    break;
+                                } else if (checkWin(board, 'O')) {
+                                    sendMessageToPlayer(player1, socket, "Message: O won!");
+                                    sendMessageToPlayer(player2, socket, "Message: O won!");
+                                    playing = false;
+                                    for (int i = 1; i <= 9; i++) {
+                                        board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
+                                    }
+                                    break;
+
+                                } else if (fullCounter == 9 && !checkWin(board, 'X') && !checkWin(board, 'O')) {
+                                    sendMessageToPlayer(player1, socket, "Message: Draw!");
+                                    sendMessageToPlayer(player2, socket, "Message: Draw!");
+                                    playing = false;
+                                    for (int i = 1; i <= 9; i++) {
+                                        board[i - 1] = (char)('0' + i); // '0' hat den Wert 48
+                                    }
+                                    break;
+                                }
+
+                                if (currentPlayer == false) {
+                                    sendMessageToPlayer(player1, socket, "Message: Your Move");
+                                } else if (currentPlayer == true) {
+                                    sendMessageToPlayer(player2, socket, "Message: Your Move");
+                                }
+                            } else {
+                                System.out.println("Feld " + move + " ist schon belegt!");
+                                if (currentPlayer == false) {
+                                    sendMessageToPlayer(player1, socket, "Message: Dieses Feld ist bereits belegt!");
+                                } else if (currentPlayer == true) {
+                                    sendMessageToPlayer(player2, socket, "Message: Dieses Feld ist bereits belegt!");
+                                }
                             }
                         } else {
-                            System.out.println("Feld " + move + " ist schon belegt!");
+                            System.out.println("Kein legaler Zug!");
+                            String message = "Dies ist kein legaler Zug";
                             if (currentPlayer == false) {
-                                sendMessageToPlayer(player1, socket, "Message: Dieses Feld ist bereits belegt!");
+                                sendMessageToPlayer(player1, socket, message);
                             } else if (currentPlayer == true) {
-                                sendMessageToPlayer(player2, socket, "Message: Dieses Feld ist bereits belegt!");
+                                sendMessageToPlayer(player2, socket, message);
                             }
                         }
                     } else {
-                        System.out.println("Kein legaler Zug!");
-                        String message = "Dies ist kein legaler Zug";
-                        if (currentPlayer == false) {
+                        System.out.println("Wrong Player");
+                        String message = "Der andere Spieler ist am Zug!";
+                        if (currentPlayer == true) {
                             sendMessageToPlayer(player1, socket, message);
-                        } else if (currentPlayer == true) {
+                        } else if (currentPlayer == false) {
                             sendMessageToPlayer(player2, socket, message);
                         }
-                    }
-                } else {
-                    System.out.println("Wrong Player");
-                    String message = "Der andere Spieler ist am Zug!";
-                    if (currentPlayer == true) {
-                        sendMessageToPlayer(player1, socket, message);
-                    } else if (currentPlayer == false) {
-                        sendMessageToPlayer(player2, socket, message);
                     }
                 }
             }
@@ -217,10 +222,12 @@ public class Server {
                 String msg;
                 int move;
 
+
                 //Sends the Message to the player, that it is his turn
                 if (currentPlayer == false) {
                     sendMessageToPlayer(activePlayer, socket, "Message: Your Move");
                 }
+
 
                 //If the currentPlayer is true (bot), than it makes the botmove and sends it to the player
                 if (currentPlayer) {
@@ -254,45 +261,48 @@ public class Server {
 
                     msg = new String(packet.getData(), 0, packet.getLength()).trim();
                     System.out.println("Received: " + msg);
+                    String[] msgParts = msg.split(";");
+                    if (msgParts[0].equals(serverId)) {
 
-                    //Makes sure that the move comes from the player1
-                    if ((!currentPlayer && sender.equals(activePlayer))) {
-                        move = Integer.parseInt(msg);
+                        //Makes sure that the move comes from the player1
+                        if ((!currentPlayer && sender.equals(activePlayer))) {
+                            move = Integer.parseInt(msg);
 
-                        // nur setzen, wenn Feld frei
-                        if (move >= 1 && move <= 9) {
-                            if (board[move - 1] != 'X' && board[move - 1] != 'O') {
+                            // nur setzen, wenn Feld frei
+                            if (move >= 1 && move <= 9) {
+                                if (board[move - 1] != 'X' && board[move - 1] != 'O') {
 
-                                board[move - 1] = 'X';
-                                String stringBoard = boardToString(board);
-                                sendMessageToPlayer(activePlayer, socket, stringBoard);
-                                int fullCounter = 0;
-                                for (int i = 0; i < 9; i++) {
-                                    if (board[i] == 'X' || board[i] == 'O') {
-                                        fullCounter++;
+                                    board[move - 1] = 'X';
+                                    String stringBoard = boardToString(board);
+                                    sendMessageToPlayer(activePlayer, socket, stringBoard);
+                                    int fullCounter = 0;
+                                    for (int i = 0; i < 9; i++) {
+                                        if (board[i] == 'X' || board[i] == 'O') {
+                                            fullCounter++;
+                                        }
+                                    }
+                                    currentPlayer = true;
+                                    win(activePlayer, socket, fullCounter);
+                                } else {
+                                    System.out.println("Feld " + move + " ist schon belegt!");
+                                    if (currentPlayer == false) {
+                                        sendMessageToPlayer(activePlayer, socket,
+                                            "Message: Dieses Feld ist bereits belegt!");
                                     }
                                 }
-                                currentPlayer = true;
-                                win(activePlayer, socket, fullCounter);
                             } else {
-                                System.out.println("Feld " + move + " ist schon belegt!");
+                                System.out.println("Kein legaler Zug!");
+                                String message = "Dies ist kein legaler Zug";
                                 if (currentPlayer == false) {
-                                    sendMessageToPlayer(activePlayer, socket,
-                                        "Message: Dieses Feld ist bereits belegt!");
+                                    sendMessageToPlayer(activePlayer, socket, message);
                                 }
                             }
                         } else {
-                            System.out.println("Kein legaler Zug!");
-                            String message = "Dies ist kein legaler Zug";
-                            if (currentPlayer == false) {
+                            System.out.println("Wrong Player");
+                            String message = "Der andere Spieler ist am Zug!";
+                            if (currentPlayer == true) {
                                 sendMessageToPlayer(activePlayer, socket, message);
                             }
-                        }
-                    } else {
-                        System.out.println("Wrong Player");
-                        String message = "Der andere Spieler ist am Zug!";
-                        if (currentPlayer == true) {
-                            sendMessageToPlayer(activePlayer, socket, message);
                         }
                     }
                 }

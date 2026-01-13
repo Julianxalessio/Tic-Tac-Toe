@@ -25,13 +25,14 @@ public class MainGame {
 			InetAddress sender = packet.getAddress();
 			if (msgParts.length == 3) {
 				if (msgParts[0].equals("main")) {
+					//!!! Make sure that botgames now work
 					if (msgParts[1].equals("Create Server_bot")) {
 						if (msgParts[2].matches("^[0-9]{4}$")) {
 							int items = servers.size();
 							for (String[] entry : servers) {
 								if (entry[0].equals(msgParts[2])) {
 									System.out.println("Server already Exists");
-//									Message Player that ID is already in use
+									sendMessageToPlayer(socket, "player;Server Exists;", sender);
 								} else
 									items--;
 							}
@@ -45,7 +46,7 @@ public class MainGame {
 							for (String[] entry : servers) {
 								if (entry[0].equals(msgParts[2])) {
 									System.out.println("Server already Exists");
-									//!!! Message Player that ID is already in use
+									sendMessageToPlayer(socket, "player;Server Exists;", sender);
 								} else
 									items--;
 							}
@@ -92,5 +93,10 @@ public class MainGame {
 				}
 			}
 		}
+	}
+	private static void sendMessageToPlayer(DatagramSocket socket, String message, InetAddress address) throws Exception {
+		byte[] buffer = message.getBytes();
+		DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 6970);
+		socket.send(packet);
 	}
 }
