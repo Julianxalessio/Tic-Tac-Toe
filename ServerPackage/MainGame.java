@@ -77,6 +77,7 @@ public class MainGame {
 						//Removes the Server with the corresponding ID
 						System.out.println("Server tyring to delete");
 						String[] tempEntry = new String[4];
+						int counter = 0;
 						for (String[] entry : servers) {
 							if (entry[0].equals(msgParts[2])) {
 								for (int[] tmp : serverPorts) {
@@ -85,11 +86,16 @@ public class MainGame {
 										tmp[0] = 0;
 									}
 								}
+								sendMessageToPlayer(socket, "Terminated", InetAddress.getByName(servers.get(counter)[2]));
+								sendMessageToPlayer(socket, "Terminated", InetAddress.getByName(servers.get(counter)[1]));
 								tempEntry = entry;
 							}
+							counter ++;
 						}
+
 						servers.remove(tempEntry);
 						System.out.println("Server deleted");
+
 
 					}
 					/**
@@ -122,7 +128,9 @@ public class MainGame {
 							//Looks if Server exists
 							int items = servers.size();
 							for (int i = 0; i < servers.size(); i++) {
+								//Is Server with ID around
 								if (servers.get(i)[0].equals(msgParts[2])) {
+									//Has the server still some free places
 									if (servers.get(i)[2].isEmpty()) {
 										//Chooses port for a server
 										int portChosen = 0;
@@ -132,6 +140,7 @@ public class MainGame {
 												tmp[0] = 1;
 											}
 										}
+										//If no ports are found send that to the player
 										if (portChosen == 0){
 											sendMessageToPlayer(socket, "player;No Ports are avaiable;", sender);
 										} else {
@@ -139,6 +148,7 @@ public class MainGame {
 											servers.get(i)[2] = sender.getHostAddress();
 											sendMessageToPlayer(socket, "serverPort;"+portChosen+";", InetAddress.getByName(servers.get(i)[1]));
 											sendMessageToPlayer(socket, "serverPort;"+portChosen+";", InetAddress.getByName(servers.get(i)[2]));
+
 
 											for (String[] entry : servers) {
 												if (msgParts[2].equals(entry[0])) {
@@ -161,6 +171,7 @@ public class MainGame {
 									}
 								} else
 									items--;
+
 							}
 							if (items <= 0) {
 								sendMessageToPlayer(socket, "Server not existing", sender);

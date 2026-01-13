@@ -88,7 +88,7 @@ public class Server {
                         } else if (msgParts[1].equals("terminate")){
                             sendMessageToPlayer(player1, socket, "Terminated");
                             sendMessageToPlayer(player2, socket, "Terminated");
-                            System.exit(0);
+                            break;
                         }
 
                         else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
