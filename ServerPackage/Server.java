@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.net.*;
 
 /**
- * <h1>Server</h1>
- * <h6>This is the Server for the Tic Tac Toe Game</h6>
- * <h6><u>!!!Attention the IPs must be set to the IPs of the Clients!!!</u></h6>
+ * <h1>TicTacToe ServerCreator-Script</h1>
+ * <h6>Script allows to send messages/responses to Players and has the game logic for Tic-Tac-Toe</h6>
  *
- * @version 1.0
+ * @version 2.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
  */
 public class Server {
+    //Playingvariable
     public static boolean playing = false;
-    // Board als Array
+    // Board as Array
     public static char[] board = {
         '1',
         '2',
@@ -27,11 +27,13 @@ public class Server {
         '8',
         '9'
     };
-
+    //Is this currently a botserver
     public static boolean botPlaying = false;
 
+    //Empty variable for the activePlayer (only in Botgames)
     public static InetAddress activePlayer;
 
+    //Some of the playerlogic
     public static boolean player1Ready = false, player2Ready = false;
     public String player1IP;
     public String player2IP;
@@ -48,50 +50,66 @@ public class Server {
         this.serverId = serverID;
         this.socket =  new DatagramSocket(port);
     }
-    //      ------------------------Variables-------------------------
 
-
+    /**
+     * This is the method, which is started by the thread in the MainGame, to start the server
+     * @throws NumberFormatException
+     * @throws Exception
+     */
     public void startServer() throws NumberFormatException, Exception {
+        //Decides which player starts
         int random = (int)(Math.random() * 2) + 1;
         boolean currentPlayer = false; // false = player1 & true = player2
         if (random == 1) currentPlayer = false;
         else currentPlayer = true;
 
+        //Defines the different players and bots
         BotClass bot = new BotClass();
         InetAddress player1 = InetAddress.getByName(player1IP);
         InetAddress player2 = InetAddress.getByName(player2IP);
 
-        //      ------------------------Game-------------------------
-        System.out.println("TicTacToe Server ready");
+        //------------------------Game-------------------------
+        System.out.println("TicTacToe Server ready with id: " + serverId);
+        /**
+         * While the Server is active
+         */
         while (true) {
+            /**
+             * On the start this while-Loop will start and wait for playerinputs. If both the players have accepted with yes, he will go on to the next while-loop
+             */
             while (!playing) {
                 botPlaying = false;
                 try {
+                    //Packetreceiver
                     byte[] buffer = new byte[1024];
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     socket.receive(packet);
-
                     String msg = new String(packet.getData(), 0, packet.getLength()).trim();
                     System.out.println("Received: " + msg);
                     String[] msgParts = msg.split(";");
+                    //Splits it into different parts
                     msgParts[1] = msgParts[1].trim();
-
-
                     InetAddress sender = packet.getAddress();
+
+                    /**
+                     * If the packet belongs to this server, it will accept it.
+                     */
                     if (msgParts[0].equals(serverId)) {
+                        //If the sender is Player1 and the message is yes, then it will set player1Ready = true
                         if (sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes")) {
-                            System.out.println("Player1");
                             player1Ready = true;
-                        } else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
-                            System.out.println("Player2");
+                        }
+                        //If the sender is Player2 and the message is yes, then it will set player2Ready = true
+                        else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
                             player2Ready = true;
-                        } else if (msgParts[1].equals("terminate")){
-                            sendMessageToPlayer(player1, socket, "Terminated");
-                            sendMessageToPlayer(player2, socket, "Terminated");
+                        }
+                        //If one of the players stop the application the server will stop and send a message to the players
+                        else if (msgParts[1].equals("terminate")){
+                            sendMessageToPlayer(player1, socket, "terminate");
+                            sendMessageToPlayer(player2, socket, "terminate");
                             break;
                         }
-
-                        else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                        /*else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
                             activePlayer = player2;
                             playing = true;
                             botPlaying = true;
@@ -105,20 +123,23 @@ public class Server {
                             String stringBoard = boardToString(board);
                             sendMessageToPlayer(activePlayer, socket, stringBoard);
                             break;
-                        }
+                        }*/
                     }
+                    //If both the players are ready
                     if (player1Ready && player2Ready) {
+                        //Start the next while-Loop after this one reached the break on line 139
                         playing = true;
+                        //Sends the startingboard to both Players
                         sendCurrentBoard(board, player1, player2, socket);
+                        //Sends the message to the player who starts, that he can insert a move
                         if (currentPlayer == false) {
                             sendMessageToPlayer(player1, socket, "Message: Your Move");
                         } else if (currentPlayer == true) {
                             sendMessageToPlayer(player2, socket, "Message: Your Move");
                         }
                         System.out.println("Game started");
-                        break; // <-- important
+                        break;
                     }
-
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -127,39 +148,57 @@ public class Server {
              * Normal Gamemode if playing is true and botPlaying is false
              */
             while (playing && !botPlaying) {
+                //Sets both players Ready = false
                 player1Ready = false;
                 player2Ready = false;
+
+                //Waits for an input of on of the players
                 byte[] buffer = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-
                 String msg = new String(packet.getData(), 0, packet.getLength()).trim();
+                //Splits the message into parts
                 String[] msgParts = msg.split(";");
-
-
                 InetAddress sender = packet.getAddress();
 
+                //If the message is for this server
                 if (msgParts[0].equals(serverId)) {
-
                     // Spieler anhand der Absenderadresse bestimmen und Zeichen korrekt ändern
                     char playerSymbol = sender.equals(player1) ? 'X' : 'O';
 
+                    //Terminates the server and sends it to the players
+                    if (msgParts[1].equals("terminate")){
+                        sendMessageToPlayer(player1, socket, "terminate");
+                        sendMessageToPlayer(player2, socket, "terminate");
+                        break;
+                    }
+
                     //Makes sure that the move comes from the right player
                     if ((currentPlayer && sender.equals(player2)) || (!currentPlayer && sender.equals(player1))) {
+                        //Transform the move from a String to an int
                         int move = Integer.parseInt(msgParts[1]);
-                        // nur setzen, wenn Feld frei
+
+                        // Only make the move if the place on the board is free
                         if (move >= 1 && move <= 9) {
                             if (board[move - 1] != 'X' && board[move - 1] != 'O') {
 
+                                //Places the symbol on the right square
                                 board[move - 1] = playerSymbol;
+
+                                //Sends the new board to all players
                                 sendCurrentBoard(board, player1, player2, socket);
+
+                                //Looks how many places on the board are still free
                                 int fullCounter = 0;
                                 for (int i = 0; i < 9; i++) {
                                     if (board[i] == 'X' || board[i] == 'O') {
                                         fullCounter++;
                                     }
                                 }
+                                //Switches the currentplayer
                                 currentPlayer = !currentPlayer;
+
+                                //Checks for a win
                                 if (checkWin(board, 'X')) {
                                     sendMessageToPlayer(player1, socket, "Message: X won!");
                                     sendMessageToPlayer(player2, socket, "Message: X won!");
@@ -187,12 +226,15 @@ public class Server {
                                     break;
                                 }
 
+                                //Sends a message to the player if it is his turn
                                 if (currentPlayer == false) {
                                     sendMessageToPlayer(player1, socket, "Message: Your Move");
                                 } else if (currentPlayer == true) {
                                     sendMessageToPlayer(player2, socket, "Message: Your Move");
                                 }
-                            } else {
+                            }
+                            //Incase the field already has something on it
+                            else {
                                 System.out.println("Feld " + move + " ist schon belegt!");
                                 if (currentPlayer == false) {
                                     sendMessageToPlayer(player1, socket, "Message: Dieses Feld ist bereits belegt!");
@@ -200,7 +242,9 @@ public class Server {
                                     sendMessageToPlayer(player2, socket, "Message: Dieses Feld ist bereits belegt!");
                                 }
                             }
-                        } else {
+                        }
+                        // The move isn't legal
+                        else {
                             System.out.println("Kein legaler Zug!");
                             String message = "Dies ist kein legaler Zug";
                             if (currentPlayer == false) {
@@ -209,7 +253,9 @@ public class Server {
                                 sendMessageToPlayer(player2, socket, message);
                             }
                         }
-                    } else {
+                    }
+                    //If the player whos turn it isn't makes a move
+                    else {
                         System.out.println("Wrong Player");
                         String message = "Der andere Spieler ist am Zug!";
                         if (currentPlayer == true) {
@@ -220,9 +266,11 @@ public class Server {
                     }
                 }
             }
+
             /**
              * Botgamemode if playing and botPlaying are both true
              */
+
             while (playing && botPlaying) {
                 player1Ready = false;
                 player2Ready = false;
@@ -230,12 +278,10 @@ public class Server {
                 String msg;
                 int move;
 
-
                 //Sends the Message to the player, that it is his turn
                 if (currentPlayer == false) {
                     sendMessageToPlayer(activePlayer, socket, "Message: Your Move");
                 }
-
 
                 //If the currentPlayer is true (bot), than it makes the botmove and sends it to the player
                 if (currentPlayer) {
@@ -314,7 +360,6 @@ public class Server {
                         }
                     }
                 }
-
             }
         }
     }

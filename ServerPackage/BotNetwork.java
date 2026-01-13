@@ -3,14 +3,14 @@ package ServerPackage;
 import java.util.Random;
 
 /**
- * <h1>Bot</h1>
- * <h6>This is the minmaxed bot which calculates the actual move</h6>
- * 
- * @version 1.0
+ * <h1>TicTacToe Bot-Script</h1>
+ * <h6>Calculates the best move with a min-max-algorythm</h6>
+ *
+ * @version 2.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
- * @author Claude AI
+ * @author ChatGPT
  */
 
 public class BotNetwork {
@@ -21,7 +21,6 @@ public class BotNetwork {
      * @return int
      */
     public int getBestMove(int[] board) {
-        var start = System.nanoTime();
         float bestEval = -1000;
         var moveEvals = new float[9];
         
@@ -37,8 +36,6 @@ public class BotNetwork {
             }
         }
         
-        System.out.printf("Bot Played: Calculated in %.2fms\n", getTime(start));
-        
         // Zufällig einen der besten Züge wählen
         Random rand = new Random();
         while (true) {
@@ -46,15 +43,6 @@ public class BotNetwork {
             if (moveEvals[move] == bestEval)
                 return move;
         }
-    }
-
-    /** 
-     * Gets the time which it needed to perform the move
-     * @param start
-     * @return float
-     */
-    static float getTime(long start) {
-        return (float) (System.nanoTime() - start) / 1_000_000;
     }
 
     /** 

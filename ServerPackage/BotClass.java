@@ -1,10 +1,9 @@
 package ServerPackage;
 /**
- * <h1>TicTacToe Bot-Script</h1>
- * <h2>Script allows to send messages/responses to Server and play TicTacToe</h2>
- * 
- * !Warning: Start the Server before starting the Player-Script!
- * @version 1.0
+ * <h1>TicTacToe BotCreator-Script</h1>
+ * <h6>Takes the move from the server and gives it to a new bot</h6>
+ *
+ * @version 2.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
@@ -34,10 +33,13 @@ public class BotClass {
                 board[i] = 2;
             }
         }
+
+        //New Bot
 		BotNetwork bot = new BotNetwork();
+        //Gets the best move from the bot
 		int bestMoveInt = bot.getBestMove(board) + 1; // Gibt Index 0-8 zurück
 		String bestMove = Integer.toString(bestMoveInt);
-		
+        //Gives the move to the server
 		return bestMove;
 	}
 }
