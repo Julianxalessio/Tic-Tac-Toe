@@ -51,7 +51,6 @@ public class Player1 {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-
 		InetAddress server = InetAddress.getByName("223.2.1.102"); // Serveradresse
 		int serverPort = 0; // Server-Port
 		int clientPort = 6970; // Client-Port
@@ -64,7 +63,7 @@ public class Player1 {
 		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
 		boolean alreadyPlayed = false;
-
+	while (true) {
 		while (true) {
 			System.out.print("Create a new game or join existing one? (create/join): ");
 			String serverType = stdin.readLine();
@@ -99,7 +98,7 @@ public class Player1 {
 					socketSend = new DatagramSocket(serverPort);
 				} else {
 					System.out.println("Serverport has not been detected");
-					System.exit(0);
+					break;
 				}
 			} catch (Exception e) {
 				System.out.println(e);
@@ -278,5 +277,6 @@ public class Player1 {
 				}
 			}
 		}
+	}
 	}
 }
