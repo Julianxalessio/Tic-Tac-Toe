@@ -13,7 +13,7 @@ import java.net.*;
  * 
  * !Warning: Start the Server before launching the Player-Script!
  * 
- * @version 2.0
+ * @version 2.0.1
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
@@ -229,7 +229,7 @@ public class Player1 {
 				} else if (response.contains("Message: X won!")) {
 					System.out.print("X Won!");
 					if (!alreadyPlayed) {
-						System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
+						System.out.print(" Start the Game again (yes/no): ");
 					} else {
 						System.out.print(" Start the Game again: ");
 					}

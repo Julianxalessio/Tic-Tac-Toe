@@ -6,7 +6,7 @@ import java.util.Random;
  * <h1>TicTacToe Bot-Script</h1>
  * <h6>Calculates the best move with a min-max-algorythm</h6>
  *
- * @version 2.0
+ * @version 2.0.1
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone

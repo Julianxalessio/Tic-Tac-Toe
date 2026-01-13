@@ -7,7 +7,7 @@ import java.net.*;
  * <h1>TicTacToe ServerCreator-Script</h1>
  * <h6>Script allows to send messages/responses to Players and has the game logic for Tic-Tac-Toe</h6>
  *
- * @version 2.0
+ * @version 2.0.1
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
@@ -39,17 +39,18 @@ public class Server {
     public String player2IP;
     public String serverId;
     public final DatagramSocket socket;
+    public boolean botServer = false;
 
     /**
      * Contructor for Server
      * @throws Exception
      */
-    public Server(String player1IP, String player2IP, String serverID, int port, boolean botPlaying) throws SocketException {
+    public Server(String player1IP, String player2IP, String serverID, int port, boolean botServer) throws SocketException {
         this.player1IP = player1IP;
         this.player2IP = player2IP;
         this.serverId = serverID;
         this.socket =  new DatagramSocket(port);
-        this.botPlaying = botPlaying;
+        this.botServer = botServer;
     }
 
     /**
@@ -80,6 +81,7 @@ public class Server {
              */
             while (!playing) {
                 try {
+                    System.out.println(botServer);
                     //Packetreceiver
                     byte[] buffer = new byte[1024];
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -96,11 +98,11 @@ public class Server {
                      */
                     if (msgParts[0].equals(serverId)) {
                         //If the sender is Player1 and the message is yes, then it will set player1Ready = true
-                        if (sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes")) {
+                        if (!botServer && sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes")) {
                             player1Ready = true;
                         }
                         //If the sender is Player2 and the message is yes, then it will set player2Ready = true
-                        else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
+                        else if (!botServer && sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
                             player2Ready = true;
                         }
                         //If one of the players stop the application the server will stop and send a message to the players
@@ -109,14 +111,14 @@ public class Server {
                             sendMessageToPlayer(player2, socket, "terminate");
                             break;
                         }
-                        else if (botPlaying && sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
+                        else if (botServer && sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
                             activePlayer = player2;
                             playing = true;
                             botPlaying = true;
                             String stringBoard = boardToString(board);
                             sendMessageToPlayer(activePlayer, socket, stringBoard);
                             break;
-                        } else if (botPlaying && sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                        } else if (botServer && sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes")) {
                             activePlayer = player1;
                             playing = true;
                             botPlaying = true;
@@ -270,7 +272,6 @@ public class Server {
             /**
              * Botgamemode if playing and botPlaying are both true
              */
-
             while (playing && botPlaying) {
                 player1Ready = false;
                 player2Ready = false;
@@ -318,16 +319,15 @@ public class Server {
                     String[] msgParts = msg.split(";");
                     if (msgParts[0].equals(serverId)) {
 
-                        //Terminates the server and sends it to the players
+                        //Terminates the server and sends it to the player
                         if (msgParts[1].equals("terminate")){
-                            sendMessageToPlayer(player1, socket, "terminate");
-                            sendMessageToPlayer(player2, socket, "terminate");
+                            sendMessageToPlayer(activePlayer, socket, "terminate");
                             break;
                         }
 
-                        //Makes sure that the move comes from the player1
+                        //Makes sure that the move comes from the player
                         if ((!currentPlayer && sender.equals(activePlayer))) {
-                            move = Integer.parseInt(msg);
+                            move = Integer.parseInt(msgParts[1]);
 
                             // nur setzen, wenn Feld frei
                             if (move >= 1 && move <= 9) {
@@ -347,8 +347,7 @@ public class Server {
                                 } else {
                                     System.out.println("Feld " + move + " ist schon belegt!");
                                     if (currentPlayer == false) {
-                                        sendMessageToPlayer(activePlayer, socket,
-                                            "Message: Dieses Feld ist bereits belegt!");
+                                        sendMessageToPlayer(activePlayer, socket,"Message: Dieses Feld ist bereits belegt!");
                                     }
                                 }
                             } else {

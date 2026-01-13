@@ -10,7 +10,7 @@ import java.util.List;
  * <h1>TicTacToe ServerCreator-Script</h1>
  * <h6>Script allows to send messages/responses to Players and creates the Servers for the Tic-tac-toe Game</h6>
  *
- * @version 2.0
+ * @version 2.0.1
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
@@ -145,7 +145,7 @@ public class MainGame {
                         }
                         //Deletes the active Server
                         servers.remove(tempEntry);
-                        System.out.println("Server deleted");
+                        System.out.println("Server " + tempEntry[0] + " deleted");
                     }
                     /**
                      * Player creates a new Server
