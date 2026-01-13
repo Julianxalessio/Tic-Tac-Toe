@@ -120,7 +120,7 @@ public class Player1 {
 
 				socketSend.send(endPacket);
 				System.err.println("Session was closed!");
-				System.exit(0);
+				break;
 			}
 
 			String StartInputWithID = serverID + ";" + startInput;
@@ -174,7 +174,7 @@ public class Player1 {
 
 						socketSend.send(endPacket);
 						System.err.println("Session was closed!");
-						System.exit(0);
+						break;
 					}
 
 					// Sende Startnachricht an Server
@@ -211,7 +211,7 @@ public class Player1 {
 
 						socketSend.send(endPacket);
 						System.err.println("Session was closed!");
-						System.exit(0);
+						break;
 					}
 
 					// Sende Startnachricht an Server
@@ -248,7 +248,7 @@ public class Player1 {
 
 						socketSend.send(endPacket);
 						System.err.println("Session was closed!");
-						System.exit(0);
+						break;
 					}
 
 					// Sende Startnachricht an Server
