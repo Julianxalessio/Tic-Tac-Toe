@@ -10,7 +10,7 @@ public class MainGame {
 
 	static void main() throws Exception {
 		final List<String[]> servers = new ArrayList<>();
-		int port = 6970;
+		int port = 6971;
 		final DatagramSocket socket = new DatagramSocket(port);
 		System.out.println("ServerCreater Ready!");
 		boolean active = true;
