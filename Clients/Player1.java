@@ -111,14 +111,15 @@ public class Player1 {
 				System.out.println("Game is starting...");
 			} else {
 				System.out.println("Thanks for playing!");
-				String msg = serverID + ";terminate";
+				String msg = "main;terminate;"+serverID;
 				byte[] endData = msg.getBytes();
 				DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-				socketSend.send(endPacket);
-				msg = "main;terminate;"+serverID;
+				socketStart.send(endPacket);
+				msg = serverID + ";terminate";
 				endData = msg.getBytes();
 				endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-				socketStart.send(endPacket);
+
+				socketSend.send(endPacket);
 				System.err.println("Session was closed!");
 				System.exit(0);
 			}
