@@ -52,7 +52,7 @@ public class Player1 {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		InetAddress server = InetAddress.getByName("172.16.99.27"); // Serveradresse
+		InetAddress server = InetAddress.getByName("192.168.1.94"); // Serveradresse
 		int serverPort = 6969; // Server-Port
 		int clientPort = 6970; // Client-Port
 
