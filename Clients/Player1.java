@@ -85,7 +85,7 @@ public class Player1 {
 			serverType = "Join Server";
 		}
 		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
-		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, serverPort);
+		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, startPort);
 		socketStart.send(serverStartMessagePacket);
 
 		// Spielstartfrage direkt beim Start
