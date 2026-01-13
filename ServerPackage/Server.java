@@ -28,8 +28,6 @@ public class Server {
         '9'
     };
 
-    public static int time = 60;
-
     public static boolean botPlaying = false;
 
     public static InetAddress activePlayer;
@@ -78,9 +76,11 @@ public class Server {
                 String[] msgParts = msg.split(";");
 
 
-                InetAddress sender = packet.getAddress();
 
+                InetAddress sender = packet.getAddress();
+                System.out.println(serverId + msgParts[0]);
                 if (msgParts[0].equals(serverId)) {
+                    System.out.println("Reached serverid");
 
                     if (sender.equals(player1) && msgParts[1].equals("yes")) {
                         player1Ready = true;

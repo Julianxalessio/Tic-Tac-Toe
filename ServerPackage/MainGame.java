@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MainGame {
 
-	public static void main(String[] args) throws Exception {
+	static void main() throws Exception {
 		final List<String[]> servers = new ArrayList<>();
 		int port = 6969;
 		final DatagramSocket socket = new DatagramSocket(port);
@@ -61,20 +61,17 @@ public class MainGame {
 							int items = servers.size();
 							for (int i = 0; i < servers.size(); i++) {
 								if (servers.get(i)[0].equals(msgParts[2])) {
-									if (!servers.get(i)[2].equals("")) {
-									servers.get(i)[2] = sender.getHostAddress();
-									int finalI = i;
-									Server server = new Server(servers.get(finalI)[1],servers.get(finalI)[2], socket, msgParts[2]);
-									//!!! Message both Players Game Starting
-									new Thread(){
-										public void run() {
+									if (servers.get(i)[2].isEmpty()) {
+										servers.get(i)[2] = sender.getHostAddress();
+										Server server = new Server(servers.get(i)[1],servers.get(i)[2], socket, msgParts[2]);
+										//!!! Message both Players Game Starting
+										new Thread(() -> {
 											try {
 												server.startServer();
 											} catch (Exception e) {
-												e.printStackTrace();
+												System.out.println(e);
 											}
-										}
-									}.start();
+										}).start();
 									} else {
 										System.out.println("Server Full");
 										//!!! Message Player Server Full
