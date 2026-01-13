@@ -28,7 +28,7 @@ public class Server {
         '9'
     };
     //Is this currently a botserver
-    public static boolean botPlaying = false;
+    public boolean botPlaying = false;
 
     //Empty variable for the activePlayer (only in Botgames)
     public static InetAddress activePlayer;
@@ -44,11 +44,12 @@ public class Server {
      * Contructor for Server
      * @throws Exception
      */
-    public Server(String player1IP, String player2IP, String serverID, int port) throws SocketException {
+    public Server(String player1IP, String player2IP, String serverID, int port, boolean botPlaying) throws SocketException {
         this.player1IP = player1IP;
         this.player2IP = player2IP;
         this.serverId = serverID;
         this.socket =  new DatagramSocket(port);
+        this.botPlaying = botPlaying;
     }
 
     /**
@@ -78,7 +79,6 @@ public class Server {
              * On the start this while-Loop will start and wait for playerinputs. If both the players have accepted with yes, he will go on to the next while-loop
              */
             while (!playing) {
-                botPlaying = false;
                 try {
                     //Packetreceiver
                     byte[] buffer = new byte[1024];
@@ -109,21 +109,21 @@ public class Server {
                             sendMessageToPlayer(player2, socket, "terminate");
                             break;
                         }
-                        /*else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                        else if (botPlaying && sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
                             activePlayer = player2;
                             playing = true;
                             botPlaying = true;
                             String stringBoard = boardToString(board);
                             sendMessageToPlayer(activePlayer, socket, stringBoard);
                             break;
-                        } else if (sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                        } else if (botPlaying && sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes_bot")) {
                             activePlayer = player1;
                             playing = true;
                             botPlaying = true;
                             String stringBoard = boardToString(board);
                             sendMessageToPlayer(activePlayer, socket, stringBoard);
                             break;
-                        }*/
+                        }
                     }
                     //If both the players are ready
                     if (player1Ready && player2Ready) {
@@ -317,6 +317,13 @@ public class Server {
                     System.out.println("Received: " + msg);
                     String[] msgParts = msg.split(";");
                     if (msgParts[0].equals(serverId)) {
+
+                        //Terminates the server and sends it to the players
+                        if (msgParts[1].equals("terminate")){
+                            sendMessageToPlayer(player1, socket, "terminate");
+                            sendMessageToPlayer(player2, socket, "terminate");
+                            break;
+                        }
 
                         //Makes sure that the move comes from the player1
                         if ((!currentPlayer && sender.equals(activePlayer))) {

@@ -70,7 +70,9 @@ public class MainGame {
                      * Create a Server with a Bot
                      */
                     if (msgParts[1].equals("Create Server_bot")) {
+                        //Is a 4 digit number?
                         if (msgParts[2].matches("^[0-9]{4}$")) {
+                            //Checks if Server already exists
                             int items = servers.size();
                             for (String[] entry : servers) {
                                 if (entry[0].equals(msgParts[2])) {
@@ -79,8 +81,42 @@ public class MainGame {
                                 } else
                                     items--;
                             }
+                            //If server doesnt exist, create a new Server
                             if (items <= 0) {
-                                servers.add(new String[]{msgParts[2], sender.getHostAddress(), ""});
+                                servers.add(new String[]{msgParts[2], sender.getHostAddress(), "bot", ""});
+
+                                //Chooses port for a server
+                                int portChosen = 0;
+                                for (int[] tmp : serverPorts) {
+                                    if (tmp[0] == 0) {
+                                        portChosen = tmp[1];
+                                        tmp[0] = 1;
+                                    }
+                                }
+                                //If no ports are found send that to the player
+                                if (portChosen == 0) {
+                                    sendMessageToPlayer(socket, "player;No Ports are avaiable;", sender);
+                                } else {
+                                    //Sends the port to the Players
+                                    sendMessageToPlayer(socket, "serverPort;" + portChosen + ";", sender);
+
+                                    //Writes into the serverlist which port the new server has
+                                    for (String[] entry : servers) {
+                                        if (msgParts[2].equals(entry[0])) {
+                                            entry[3] = Integer.toString(portChosen);
+                                        }
+                                    }
+                                    //Creates the new serverobjectsender
+                                    Server server = new Server(sender.getHostAddress(), "0.0.0.0", msgParts[2], portChosen, true);
+                                    //Starts the server
+                                    new Thread(() -> {
+                                        try {
+                                            server.startServer();
+                                        } catch (Exception e) {
+                                            System.out.println(e);
+                                        }
+                                    }).start();
+                                }
                             }
                         }
                     }
@@ -169,7 +205,7 @@ public class MainGame {
                                                 }
                                             }
                                             //Creates the new serverobject
-                                            Server server = new Server(servers.get(i)[1], servers.get(i)[2], msgParts[2], portChosen);
+                                            Server server = new Server(servers.get(i)[1], servers.get(i)[2], msgParts[2], portChosen, false);
                                             //Starts the server
                                             new Thread(() -> {
                                                 try {
