@@ -186,8 +186,19 @@ public class Player1 {
 					} else if (startInput.equals("yes_bot")) {
 						System.out.println("Game is starting...");
 						alreadyPlayed = true;
-					} else {
+					} else if (startInput.equals("yes_bot")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					}else {
 						System.out.println("Thanks for playing!");
+						String msg = serverID + ";terminate";
+						byte[] endData = msg.getBytes();
+						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+						socketSend.send(endPacket);
+						msg = "main;terminate;"+serverID;
+						endData = msg.getBytes();
+						endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+						socketStart.send(endPacket);
 						System.err.println("Session was closed!");
 						System.exit(0);
 					}
@@ -211,8 +222,19 @@ public class Player1 {
 					} else if (startInput.equals("yes_bot")) {
 						System.out.println("Game is starting...");
 						alreadyPlayed = true;
-					} else {
+					} else if (startInput.equals("yes_bot")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					}else {
 						System.out.println("Thanks for playing!");
+						String msg = serverID + ";terminate";
+						byte[] endData = msg.getBytes();
+						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+						socketSend.send(endPacket);
+						msg = "main;terminate;"+serverID;
+						endData = msg.getBytes();
+						endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+						socketStart.send(endPacket);
 						System.err.println("Session was closed!");
 						System.exit(0);
 					}
