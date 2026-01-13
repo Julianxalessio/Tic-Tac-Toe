@@ -1,10 +1,9 @@
 package Clients;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 
 /**
  * 
@@ -23,7 +22,10 @@ import java.net.InetAddress;
 
 public class Player1 {
 
-	 /**
+    public Player1() throws UnknownHostException, SocketException {
+    }
+
+    /**
 	 * Color for TicTacToe-Game
 	 * @param c
 	 * @return
@@ -46,30 +48,91 @@ public class Player1 {
 	public static final String BLUE = "\u001B[34m";
 
 	/**
-	 * Main Method with Send-, Receive- and Winning/Draw Logic
+	 * Main Method with Send-, Receive-, Winning/Draw- and Error-Logic
 	 * @param args
 	 * @throws Exception
 	 */
+	public static InetAddress server; // Serveradresse
+
+    static {
+        try {
+            server = InetAddress.getByName("223.2.1.102");
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int serverPort = 0; // Server-Port
+	public static int clientPort = 6970; // Client-Port
+	public static int startPort = 6971; // Client-Port
+	public static String serverID = "";
+
+	public static DatagramSocket socketSend; // Beliebiger Port für Senden
+
+    static {
+        try {
+            socketSend = new DatagramSocket(serverPort);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static DatagramSocket socketReceive; // Empfangsport
+
+    static {
+        try {
+            socketReceive = new DatagramSocket(clientPort);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static DatagramSocket socketStart; // Empfangsport
+
+    static {
+        try {
+            socketStart = new DatagramSocket(startPort);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+
+	public static boolean alreadyPlayed = false;
+	public static void sendTerminate() throws IOException {
+		String msg = "main;terminate;"+serverID;
+		byte[] endData = msg.getBytes();
+		DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, startPort);
+		try {
+			socketStart.send(endPacket);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		if (serverPort != 0) {
+			msg = serverID + ";terminate";
+			endData = msg.getBytes();
+			endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+			socketSend.send(endPacket);
+			System.err.println("Session was closed!");
+		}
+	}
 	public static void main(String[] args) throws Exception {
-		InetAddress server = InetAddress.getByName("223.2.1.102"); // Serveradresse
-		int serverPort = 0; // Server-Port
-		int clientPort = 6970; // Client-Port
-		int startPort = 6971; // Client-Port
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                sendTerminate();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }));
 
-		DatagramSocket socketSend = new DatagramSocket(serverPort); // Beliebiger Port für Senden
-		DatagramSocket socketReceive = new DatagramSocket(clientPort); // Empfangsport
-		DatagramSocket socketStart = new DatagramSocket(startPort); // Empfangsport
-
-		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-
-		boolean alreadyPlayed = false;
 	while (true) {
 		while (true) {
 			System.out.print("Create a new game or join existing one? (create/join): ");
 			String serverType = stdin.readLine();
 			System.out.println();
 			System.out.print("Enter Server ID (format: 1234): ");
-			String serverID = stdin.readLine();
+			serverID = stdin.readLine();
 			System.out.println();
 			if (serverType.equals("create")) {
 				System.out.print("With bot: (yes/no) ");
