@@ -79,7 +79,8 @@ public class MainGame {
 											sendMessageToPlayer(socket, "player;No Ports are avaiable;", sender);
 										} else {
 											servers.get(i)[2] = sender.getHostAddress();
-											sendMessageToPlayer(socket, "serverPort;"+portChosen+";", sender);
+											sendMessageToPlayer(socket, "serverPort;"+portChosen+";", InetAddress.getByName(servers.get(i)[1]));
+											sendMessageToPlayer(socket, "serverPort;"+portChosen+";", InetAddress.getByName(servers.get(i)[2]));
 											Server server = new Server(servers.get(i)[1], servers.get(i)[2], msgParts[2], portChosen);
 											//!!! Message both Players Game Starting
 											new Thread(() -> {
