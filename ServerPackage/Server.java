@@ -63,8 +63,6 @@ public class Server {
 
         //      ------------------------Game-------------------------
         System.out.println("TicTacToe Server ready");
-        System.out.println(player1.getHostAddress());
-        System.out.println(player2.getHostAddress());
         while (true) {
             while (!playing) {
                 botPlaying = false;
@@ -87,7 +85,13 @@ public class Server {
                         } else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
                             System.out.println("Player2");
                             player2Ready = true;
-                        } else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                        } else if (msgParts[1].equals("terminate")){
+                            sendMessageToPlayer(player1, socket, "Terminated");
+                            sendMessageToPlayer(player2, socket, "Terminated");
+                            System.exit(0);
+                        }
+
+                        else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
                             activePlayer = player2;
                             playing = true;
                             botPlaying = true;
