@@ -7,16 +7,16 @@ import java.net.*;
  * <h1>TicTacToe ServerCreator-Script</h1>
  * <h6>Script allows to send messages/responses to Players and has the game logic for Tic-Tac-Toe</h6>
  *
- * @version 2.0.1
+ * @version 2.1.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
  */
 public class Server {
     //Playingvariable
-    public static boolean playing = false;
+    boolean playing = false;
     // Board as Array
-    public static char[] board = {
+    char[] board = {
         '1',
         '2',
         '3',
@@ -28,18 +28,18 @@ public class Server {
         '9'
     };
     //Is this currently a botserver
-    public boolean botPlaying = false;
+    boolean botPlaying = false;
 
     //Empty variable for the activePlayer (only in Botgames)
-    public static InetAddress activePlayer;
+    InetAddress activePlayer;
 
     //Some of the playerlogic
-    public static boolean player1Ready = false, player2Ready = false;
-    public String player1IP;
-    public String player2IP;
-    public String serverId;
-    public final DatagramSocket socket;
-    public boolean botServer = false;
+    boolean player1Ready = false, player2Ready = false;
+    String player1IP;
+    String player2IP;
+    String serverId;
+    final DatagramSocket socket;
+    boolean botServer = false;
 
     /**
      * Contructor for Server
@@ -68,7 +68,12 @@ public class Server {
         //Defines the different players and bots
         BotClass bot = new BotClass();
         InetAddress player1 = InetAddress.getByName(player1IP);
-        InetAddress player2 = InetAddress.getByName(player2IP);
+        InetAddress player2;
+        if (player2IP.equals("bot")){
+            player2 = InetAddress.getByName("0.0.0.0");
+        } else {
+            player2 = InetAddress.getByName(player2IP);
+        }
 
         //------------------------Game-------------------------
         System.out.println("TicTacToe Server ready with id: " + serverId);
@@ -304,7 +309,7 @@ public class Server {
                                     fullCounter++;
                                 }
                             }
-                            win(activePlayer, socket, fullCounter);
+                            win(activePlayer, fullCounter);
                         }
                     }
                 }
@@ -343,7 +348,7 @@ public class Server {
                                         }
                                     }
                                     currentPlayer = true;
-                                    win(activePlayer, socket, fullCounter);
+                                    win(activePlayer, fullCounter);
                                 } else {
                                     System.out.println("Feld " + move + " ist schon belegt!");
                                     if (currentPlayer == false) {
@@ -372,12 +377,12 @@ public class Server {
 
     /**
      * Handels the different kind of wins/draws
+     *
      * @param activePlayer
-     * @param socket
      * @param fullCounter
      * @throws IOException
      */
-    public static void win(InetAddress activePlayer, DatagramSocket socket, int fullCounter) throws IOException {
+    public void win(InetAddress activePlayer, int fullCounter) throws IOException {
         if (checkWin(board, 'X')) {
             sendMessageToPlayer(activePlayer, socket, "Message: X won!");
             playing = false;

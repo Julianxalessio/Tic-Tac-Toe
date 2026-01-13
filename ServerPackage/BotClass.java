@@ -3,7 +3,7 @@ package ServerPackage;
  * <h1>TicTacToe BotCreator-Script</h1>
  * <h6>Takes the move from the server and gives it to a new bot</h6>
  *
- * @version 2.0.1
+ * @version 2.1.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
