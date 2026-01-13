@@ -146,6 +146,9 @@ public class Player1 {
 					byte[] sendData = msg.getBytes();
 					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, server, serverPort);
 					socketSend.send(sendPacket);
+				} else if (response.contains("Server not existing")) {
+					System.err.println("Server not existing...");
+					break;
 				} else if (response.contains("Message: X won!")) {
 					System.out.print("X Won!");
 					if (!alreadyPlayed) {
