@@ -10,6 +10,13 @@ public class MainGame {
 
 	static void main() throws Exception {
 		final List<String[]> servers = new ArrayList<>();
+		List<int[]> serverPorts = new ArrayList<>();
+		int startPort = 6972;
+		for (int i = 0; i <10; i++){
+			int port = startPort + i;
+			int[] tmp = {0, port};
+			serverPorts.add(tmp);
+		}
 		int port = 6971;
 		final DatagramSocket socket = new DatagramSocket(port);
 		System.out.println("ServerCreater Ready!");
@@ -51,8 +58,10 @@ public class MainGame {
 									items--;
 							}
 							if (items <= 0) {
-								servers.add(new String[] { msgParts[2], sender.getHostAddress(), "" });
-								//!!! Message Player Server Created
+
+									servers.add(new String[]{msgParts[2], sender.getHostAddress(), msgParts[2], });
+									//!!! Message Player Server Created
+
 							}
 						}
 					}
@@ -62,16 +71,26 @@ public class MainGame {
 							for (int i = 0; i < servers.size(); i++) {
 								if (servers.get(i)[0].equals(msgParts[2])) {
 									if (servers.get(i)[2].isEmpty()) {
-										servers.get(i)[2] = sender.getHostAddress();
-										Server server = new Server(servers.get(i)[1],servers.get(i)[2], msgParts[2]);
-										//!!! Message both Players Game Starting
-										new Thread(() -> {
-											try {
-												server.startServer();
-											} catch (Exception e) {
-												System.out.println(e);
+										int portChosen = 0;
+										for (int[] tmp : serverPorts){
+											if (tmp[0] == 0){
+												portChosen = tmp[1];
 											}
-										}).start();
+										}
+										if (portChosen == 0){
+											sendMessageToPlayer(socket, "player;No Ports are avaiable;", sender);
+										} else {
+											servers.get(i)[2] = sender.getHostAddress();
+											Server server = new Server(servers.get(i)[1], servers.get(i)[2], msgParts[2], portChosen);
+											//!!! Message both Players Game Starting
+											new Thread(() -> {
+												try {
+													server.startServer();
+												} catch (Exception e) {
+													System.out.println(e);
+												}
+											}).start();
+										}
 									} else {
 										System.out.println("Server Full");
 										//!!! Message Player Server Full
