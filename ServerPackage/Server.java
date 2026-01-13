@@ -35,17 +35,17 @@ public class Server {
     public static boolean player1Ready = false, player2Ready = false;
     public String player1IP;
     public String player2IP;
-    public DatagramSocket socket;
     public String serverId;
+    public int port = 6969;
+    public final DatagramSocket socket = new DatagramSocket(port);
 
     /**
      * Contructor for Server
      * @throws Exception
      */
-    public Server(String player1IP, String player2IP, DatagramSocket socket, String serverID) {
+    public Server(String player1IP, String player2IP, String serverID) throws SocketException {
         this.player1IP = player1IP;
         this.player2IP = player2IP;
-        this.socket = socket;
         this.serverId = serverID;
     }
     //      ------------------------Variables-------------------------

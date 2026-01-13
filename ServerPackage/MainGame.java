@@ -10,7 +10,7 @@ public class MainGame {
 
 	static void main() throws Exception {
 		final List<String[]> servers = new ArrayList<>();
-		int port = 6969;
+		int port = 6970;
 		final DatagramSocket socket = new DatagramSocket(port);
 		System.out.println("ServerCreater Ready!");
 		boolean active = true;
@@ -63,7 +63,7 @@ public class MainGame {
 								if (servers.get(i)[0].equals(msgParts[2])) {
 									if (servers.get(i)[2].isEmpty()) {
 										servers.get(i)[2] = sender.getHostAddress();
-										Server server = new Server(servers.get(i)[1],servers.get(i)[2], socket, msgParts[2]);
+										Server server = new Server(servers.get(i)[1],servers.get(i)[2], msgParts[2]);
 										//!!! Message both Players Game Starting
 										new Thread(() -> {
 											try {
