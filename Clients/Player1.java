@@ -55,9 +55,11 @@ public class Player1 {
 		InetAddress server = InetAddress.getByName("223.2.1.102"); // Serveradresse
 		int serverPort = 6969; // Server-Port
 		int clientPort = 6970; // Client-Port
+		int startPort = 6971; // Client-Port
 
 		DatagramSocket socketSend = new DatagramSocket(serverPort); // Beliebiger Port für Senden
 		DatagramSocket socketReceive = new DatagramSocket(clientPort); // Empfangsport
+		DatagramSocket socketStart = new DatagramSocket(startPort); // Empfangsport
 
 		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
@@ -84,7 +86,7 @@ public class Player1 {
 		}
 		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
 		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, serverPort);
-		socketSend.send(serverStartMessagePacket);
+		socketStart.send(serverStartMessagePacket);
 
 		// Spielstartfrage direkt beim Start
 		System.out.print("Start the Game (yes/no) [Add '_bot' if playing with AI]: ");
