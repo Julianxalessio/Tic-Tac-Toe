@@ -113,7 +113,7 @@ public class Player1 {
 				System.out.println("Thanks for playing!");
 				String msg = "main;terminate;"+serverID;
 				byte[] endData = msg.getBytes();
-				DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+				DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, startPort);
 				socketStart.send(endPacket);
 				msg = serverID + ";terminate";
 				endData = msg.getBytes();
@@ -162,14 +162,15 @@ public class Player1 {
 						alreadyPlayed = true;
 					}else {
 						System.out.println("Thanks for playing!");
-						String msg = serverID + ";terminate";
+						String msg = "main;terminate;"+serverID;
 						byte[] endData = msg.getBytes();
-						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-						socketSend.send(endPacket);
-						msg = "main;terminate;"+serverID;
+						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, startPort);
+						socketStart.send(endPacket);
+						msg = serverID + ";terminate";
 						endData = msg.getBytes();
 						endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-						socketStart.send(endPacket);
+
+						socketSend.send(endPacket);
 						System.err.println("Session was closed!");
 						System.exit(0);
 					}
@@ -198,14 +199,15 @@ public class Player1 {
 						alreadyPlayed = true;
 					}else {
 						System.out.println("Thanks for playing!");
-						String msg = serverID + ";terminate";
+						String msg = "main;terminate;"+serverID;
 						byte[] endData = msg.getBytes();
-						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-						socketSend.send(endPacket);
-						msg = "main;terminate;"+serverID;
+						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, startPort);
+						socketStart.send(endPacket);
+						msg = serverID + ";terminate";
 						endData = msg.getBytes();
 						endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-						socketStart.send(endPacket);
+
+						socketSend.send(endPacket);
 						System.err.println("Session was closed!");
 						System.exit(0);
 					}
@@ -234,14 +236,15 @@ public class Player1 {
 						alreadyPlayed = true;
 					}else {
 						System.out.println("Thanks for playing!");
-						String msg = serverID + ";terminate";
+						String msg = "main;terminate;"+serverID;
 						byte[] endData = msg.getBytes();
-						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-						socketSend.send(endPacket);
-						msg = "main;terminate;"+serverID;
+						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, startPort);
+						socketStart.send(endPacket);
+						msg = serverID + ";terminate";
 						endData = msg.getBytes();
 						endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
-						socketStart.send(endPacket);
+
+						socketSend.send(endPacket);
 						System.err.println("Session was closed!");
 						System.exit(0);
 					}
