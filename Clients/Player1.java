@@ -160,7 +160,8 @@ public class Player1 {
 				}
 
 				// Sende Startnachricht an Server
-				startData = startInput.getBytes();
+				String msg = serverID + ";" + startInput;
+				byte[] sendData = msg.getBytes();
 				startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
 				socketSend.send(startPacket);
 			} else if (response.contains("Message: O won!")) {

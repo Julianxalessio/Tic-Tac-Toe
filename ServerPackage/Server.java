@@ -80,8 +80,6 @@ public class Server {
 
 
                     InetAddress sender = packet.getAddress();
-                    System.out.println(sender.getHostAddress());
-                    System.out.println(msgParts[1]);
                     if (msgParts[0].equals(serverId)) {
                         if (sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes")) {
                             System.out.println("Player1");
