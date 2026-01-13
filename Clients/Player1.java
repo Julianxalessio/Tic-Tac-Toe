@@ -7,9 +7,9 @@ import java.net.*;
 
 /**
  * 
- * <h1>TicTacToe Player1-Script</h1>
+ * <h1>TicTacToe Client-Script</h1>
  * <h2>Script allows to send messages/responses to Server and play TicTacToe as
- * Player1</h2>
+ * Client</h2>
  * 
  * !Warning: Start the Server before launching the Player-Script!
  * 
@@ -48,9 +48,7 @@ public class Player1 {
 	public static final String BLUE = "\u001B[34m";
 
 	/**
-	 * Main Method with Send-, Receive-, Winning/Draw- and Error-Logic
-	 * @param args
-	 * @throws Exception
+	 * Variable for Server-IP
 	 */
 	public static InetAddress server; // Serveradresse
 
@@ -62,6 +60,10 @@ public class Player1 {
         }
     }
 
+
+	/**
+	 * Defines Server-, Client- and Start-Ports and also the Server-ID
+	 */
     public static int serverPort = 0; // Server-Port
 	public static int clientPort = 6970; // Client-Port
 	public static int startPort = 6971; // Client-Port
@@ -100,6 +102,11 @@ public class Player1 {
     public static BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
 	public static boolean alreadyPlayed = false;
+
+	/**
+	 * Sends a message to the server to inform him, that a terminate just happened
+	 * @throws IOException
+	 */
 	public static void sendTerminate() throws IOException {
 		String msg = "main;terminate;"+serverID;
 		byte[] endData = msg.getBytes();
@@ -117,6 +124,11 @@ public class Player1 {
 			System.err.println("Session was closed!");
 		}
 	}
+	/**
+	 * Main Method with Send-, Receive-, Winning/Draw- and Error-Logic
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -126,6 +138,9 @@ public class Player1 {
             }
         }));
 
+		/**
+		 * Winning/Draw-Logic
+		 */
 	while (true) {
 		while (true) {
 			System.out.print("Create a new game or join existing one? (create/join): ");
