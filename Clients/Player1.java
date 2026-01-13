@@ -23,7 +23,7 @@ import java.net.InetAddress;
 
 public class Player1 {
 
-	/**
+	 /**
 	 * Color for TicTacToe-Game
 	 * @param c
 	 * @return
@@ -123,7 +123,7 @@ public class Player1 {
 				socketSend.send(sendPacket);
 			} else if (response.contains("Message: X won!")) {
 				System.out.print("X Won!");
-				if (alreadyPlayed == false) {
+				if (!alreadyPlayed) {
 					System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
 				} else {
 					System.out.print(" Start the Game again: ");
@@ -147,7 +147,7 @@ public class Player1 {
 				socketSend.send(startPacket);
 			} else if (response.contains("Message: O won!")) {
 				System.out.print("O Won!");
-				if (alreadyPlayed == false) {
+				if (!alreadyPlayed) {
 					System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
 				} else {
 					System.out.print(" Start the Game again: ");
@@ -171,7 +171,7 @@ public class Player1 {
 				socketSend.send(startPacket);
 			} else if (response.contains("Message: Draw!")) {
 				System.out.print("Draw!");
-				if (alreadyPlayed == false) {
+				if (!alreadyPlayed) {
 					System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
 				} else {
 					System.out.print(" Start the Game again: ");
