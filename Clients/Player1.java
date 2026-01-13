@@ -65,170 +65,181 @@ public class Player1 {
 
 		boolean alreadyPlayed = false;
 
+		while (true) {
+			System.out.print("Create a new game or join existing one? (create/join): ");
+			String serverType = stdin.readLine();
+			System.out.println();
+			System.out.print("Enter Server ID (format: 1234): ");
+			String serverID = stdin.readLine();
+			System.out.println();
+			if (serverType.equals("create")) {
+				System.out.print("With bot: (yes/no) ");
+				String botType = stdin.readLine();
+				if (botType.equals("yes")) {
+					serverType = "Create Server_bot";
+				} else {
+					serverType = "Create Server";
+				}
 
-		System.out.print("Create a new game or join existing one? (create/join): ");
-		String serverType = stdin.readLine();
-		System.out.println();
-		System.out.print("Enter Server ID (format: 1234): ");
-		String serverID = stdin.readLine();
-		System.out.println();
-		if (serverType.equals("create")) {
-			System.out.print("With bot: (yes/no) ");
-			String botType = stdin.readLine();
-			if (botType.equals("yes")) {
-				serverType = "Create Server_bot";
-			} else {
-				serverType = "Create Server";
+			} else if (serverType.equals("join")) {
+				serverType = "Join Server";
+			}
+			byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
+			DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, startPort);
+			socketStart.send(serverStartMessagePacket);
+			try {
+				// Empfang vom Server
+				byte[] receiveBuffer = new byte[1024000];
+				DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+				socketReceive.receive(receivePacket);
+				String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+				String[] responseParts = response.split(";");
+				if (responseParts[0].equals("serverPort")) {
+					serverPort = Integer.parseInt(responseParts[1]);
+					socketSend = new DatagramSocket(serverPort);
+				} else {
+					System.out.println("Serverport has not been detected");
+					System.exit(0);
+				}
+			} catch (Exception e) {
+				System.out.println(e);
 			}
 
-		} else if (serverType.equals("join")) {
-			serverType = "Join Server";
-		}
-		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
-		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, startPort);
-		socketStart.send(serverStartMessagePacket);
-		try {
-			// Empfang vom Server
-			byte[] receiveBuffer = new byte[1024000];
-			DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-			socketReceive.receive(receivePacket);
-			String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-			String[] responseParts = response.split(";");
-			if (responseParts[0].equals("serverPort")) {
-				serverPort = Integer.parseInt(responseParts[1]);
-				socketSend = new DatagramSocket(serverPort);
+
+			// Spielstartfrage direkt beim Start
+			System.out.print("Start the Game (yes/no): ");
+			String startInput = stdin.readLine();
+			if (startInput.equals("yes")) {
+				System.out.println("Game is starting...");
 			} else {
-				System.out.println("Serverport has not been detected");
+				System.out.println("Thanks for playing!");
+				System.err.println("Session was closed!");
 				System.exit(0);
 			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
 
+			String StartInputWithID = serverID + ";" + startInput;
 
-		// Spielstartfrage direkt beim Start
-		System.out.print("Start the Game (yes/no): ");
-		String startInput = stdin.readLine();
-		if (startInput.equals("yes")) {
-			System.out.println("Game is starting...");
-		} else {
-			System.out.println("Thanks for playing!");
-			System.err.println("Session was closed!");
-			System.exit(0);
-		}
+			// Sende Startnachricht an Server
+			byte[] startData = StartInputWithID.getBytes();
+			DatagramPacket startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
+			socketSend.send(startPacket);
 
-		String StartInputWithID = serverID + ";" + startInput;
+			while (true) {
+				// Empfang vom Server
+				byte[] receiveBuffer = new byte[1024000];
+				DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+				socketReceive.receive(receivePacket);
+				String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-		// Sende Startnachricht an Server
-		byte[] startData = StartInputWithID.getBytes();
-		DatagramPacket startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
-		socketSend.send(startPacket);
-
-		while (true) {
-			// Empfang vom Server
-			byte[] receiveBuffer = new byte[1024000];
-			DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-			socketReceive.receive(receivePacket);
-			String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-
-			// Prüfen, ob Spieler am Zug ist
-			if (response.contains("Message: Your Move")) {
-				System.out.print("Enter your move: ");
-				String userInput = stdin.readLine();
-				String msg = serverID + ";" + userInput;
-				byte[] sendData = msg.getBytes();
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, server, serverPort);
-				socketSend.send(sendPacket);
-			} else if (response.contains("Message: X won!")) {
-				System.out.print("X Won!");
-				if (!alreadyPlayed) {
-					System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
-				} else {
-					System.out.print(" Start the Game again: ");
-				}
-				startInput = stdin.readLine();
-				if (startInput.equals("yes")) {
-					System.out.println("Game is starting...");
-					alreadyPlayed = true;
-				} else if (startInput.equals("yes_bot")) {
-					System.out.println("Game is starting...");
-					alreadyPlayed = true;
-				} else {
-					System.out.println("Thanks for playing!");
-					System.err.println("Session was closed!");
-					System.exit(0);
-				}
-
-				// Sende Startnachricht an Server
-				String msg = serverID + ";" + startInput;
-				byte[] sendData = msg.getBytes();
-				startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
-				socketSend.send(startPacket);
-			} else if (response.contains("Message: O won!")) {
-				System.out.print("O Won!");
-				if (!alreadyPlayed) {
-					System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
-				} else {
-					System.out.print(" Start the Game again: ");
-				}
-				startInput = stdin.readLine();
-				if (startInput.equals("yes")) {
-					System.out.println("Game is starting...");
-					alreadyPlayed = true;
-				} else if (startInput.equals("yes_bot")) {
-					System.out.println("Game is starting...");
-					alreadyPlayed = true;
-				} else {
-					System.out.println("Thanks for playing!");
-					System.err.println("Session was closed!");
-					System.exit(0);
-				}
-
-				// Sende Startnachricht an Server
-				String msg = serverID + ";" + startInput;
-				byte[] sendData = msg.getBytes();
-				startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
-				socketSend.send(startPacket);
-			} else if (response.contains("Message: Draw!")) {
-				System.out.print("Draw!");
-				if (!alreadyPlayed) {
-					System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
-				} else {
-					System.out.print(" Start the Game again: ");
-				}
-				startInput = stdin.readLine();
-				if (startInput.equals("yes")) {
-					System.out.println("Game is starting...");
-					alreadyPlayed = true;
-				} else if (startInput.equals("yes_bot")) {
-					System.out.println("Game is starting...");
-					alreadyPlayed = true;
-				} else {
-					System.out.println("Thanks for playing!");
-					System.err.println("Session was closed!");
-					System.exit(0);
-				}
-
-				// Sende Startnachricht an Server
-				String msg = serverID + ";" + startInput;
-				byte[] sendData = msg.getBytes();
-				startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
-				socketSend.send(startPacket);
-			} else if (response.startsWith("____")) {
-				for (String line : response.split("\n")) {
-					// jede Zeile Zeichen für Zeichen einfärben
-					StringBuilder coloredLine = new StringBuilder();
-					for (char c : line.toCharArray()) {
-						coloredLine.append(colorize(c));
+				// Prüfen, ob Spieler am Zug ist
+				if (response.contains("Message: Your Move")) {
+					System.out.print("Enter your move: ");
+					String userInput = stdin.readLine();
+					String msg = serverID + ";" + userInput;
+					byte[] sendData = msg.getBytes();
+					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, server, serverPort);
+					socketSend.send(sendPacket);
+				} else if (response.contains("Message: X won!")) {
+					System.out.print("X Won!");
+					if (!alreadyPlayed) {
+						System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
+					} else {
+						System.out.print(" Start the Game again: ");
 					}
-					System.out.println(coloredLine);
-				}
-			} else if (response.equals("Message: botmove")) {
-				System.out.println();
-				System.out.println("Bot played:");
-			} else {
-				for (String line : response.split("\n")) {
-					System.out.println(line);
+					startInput = stdin.readLine();
+					if (startInput.equals("yes")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					} else if (startInput.equals("yes_bot")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					}else {
+						System.out.println("Thanks for playing!");
+						String msg = serverID + ";terminate";
+						byte[] endData = msg.getBytes();
+						DatagramPacket endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+						socketSend.send(endPacket);
+						msg = "main;terminate;"+serverID;
+						endData = msg.getBytes();
+						endPacket = new DatagramPacket(endData, endData.length, server, serverPort);
+						socketStart.send(endPacket);
+						System.err.println("Session was closed!");
+						System.exit(0);
+					}
+
+					// Sende Startnachricht an Server
+					String msg = serverID + ";" + startInput;
+					byte[] sendData = msg.getBytes();
+					startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
+					socketSend.send(startPacket);
+				} else if (response.contains("Message: O won!")) {
+					System.out.print("O Won!");
+					if (!alreadyPlayed) {
+						System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
+					} else {
+						System.out.print(" Start the Game again: ");
+					}
+					startInput = stdin.readLine();
+					if (startInput.equals("yes")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					} else if (startInput.equals("yes_bot")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					} else {
+						System.out.println("Thanks for playing!");
+						System.err.println("Session was closed!");
+						System.exit(0);
+					}
+
+					// Sende Startnachricht an Server
+					String msg = serverID + ";" + startInput;
+					byte[] sendData = msg.getBytes();
+					startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
+					socketSend.send(startPacket);
+				} else if (response.contains("Message: Draw!")) {
+					System.out.print("Draw!");
+					if (!alreadyPlayed) {
+						System.out.print(" Start the Game again (yes/no) [Again with '_bot' if playing with AI]: ");
+					} else {
+						System.out.print(" Start the Game again: ");
+					}
+					startInput = stdin.readLine();
+					if (startInput.equals("yes")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					} else if (startInput.equals("yes_bot")) {
+						System.out.println("Game is starting...");
+						alreadyPlayed = true;
+					} else {
+						System.out.println("Thanks for playing!");
+						System.err.println("Session was closed!");
+						System.exit(0);
+					}
+
+					// Sende Startnachricht an Server
+					String msg = serverID + ";" + startInput;
+					byte[] sendData = msg.getBytes();
+					startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
+					socketSend.send(startPacket);
+				} else if (response.startsWith("____")) {
+					for (String line : response.split("\n")) {
+						// jede Zeile Zeichen für Zeichen einfärben
+						StringBuilder coloredLine = new StringBuilder();
+						for (char c : line.toCharArray()) {
+							coloredLine.append(colorize(c));
+						}
+						System.out.println(coloredLine);
+					}
+				} else if (response.equals("Message: botmove")) {
+					System.out.println();
+					System.out.println("Bot played:");
+				} else if (response.contains("terminate")) {
+					break;
+				} else {
+					for (String line : response.split("\n")) {
+						System.out.println(line);
+					}
 				}
 			}
 		}
