@@ -13,7 +13,7 @@ import java.net.*;
  * 
  * !Warning: Start the Server before launching the Player-Script!
  * 
- * @version 1.0
+ * @version 2.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
