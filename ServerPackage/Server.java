@@ -51,7 +51,7 @@ public class Server {
     //      ------------------------Variables-------------------------
 
 
-    public void startServer() throws Exception {
+    public void startServer() throws NumberFormatException, Exception {
         int random = (int)(Math.random() * 2) + 1;
         boolean currentPlayer = false; // false = player1 & true = player2
         if (random == 1) currentPlayer = false;
@@ -63,56 +63,62 @@ public class Server {
 
         //      ------------------------Game-------------------------
         System.out.println("TicTacToe Server ready");
+        System.out.println(player1.getHostAddress());
+        System.out.println(player2.getHostAddress());
         while (true) {
             while (!playing) {
                 botPlaying = false;
+                try {
+                    byte[] buffer = new byte[1024];
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    socket.receive(packet);
 
-                byte[] buffer = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                socket.receive(packet);
-
-                String msg = new String(packet.getData(), 0, packet.getLength()).trim();
-                System.out.println("Received: " + msg);
-                String[] msgParts = msg.split(";");
+                    String msg = new String(packet.getData(), 0, packet.getLength()).trim();
+                    System.out.println("Received: " + msg);
+                    String[] msgParts = msg.split(";");
+                    msgParts[1] = msgParts[1].trim();
 
 
-
-                InetAddress sender = packet.getAddress();
-                System.out.println(serverId + msgParts[0]);
-                if (msgParts[0].equals(serverId)) {
-                    System.out.println("Reached serverid");
-
-                    if (sender.equals(player1) && msgParts[1].equals("yes")) {
-                        player1Ready = true;
-                    } else if (sender.equals(player2) && msg.equals("yes")) {
-                        player2Ready = true;
-                    } else if (sender.equals(player2) && msg.equals("yes_bot")) {
-                        activePlayer = player2;
-                        playing = true;
-                        botPlaying = true;
-                        botPlaying = true;
-                        String stringBoard = boardToString(board);
-                        sendMessageToPlayer(activePlayer, socket, stringBoard);
-                        break;
-                    } else if (sender.equals(player1) && msg.equals("yes_bot")) {
-                        activePlayer = player1;
-                        playing = true;
-                        botPlaying = true;
-                        String stringBoard = boardToString(board);
-                        sendMessageToPlayer(activePlayer, socket, stringBoard);
-                        break;
+                    InetAddress sender = packet.getAddress();
+                    System.out.println(sender.getHostAddress());
+                    System.out.println(msgParts[1]);
+                    if (msgParts[0].equals(serverId)) {
+                        if (sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes")) {
+                            System.out.println("Player1");
+                            player1Ready = true;
+                        } else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
+                            System.out.println("Player2");
+                            player2Ready = true;
+                        } else if (sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                            activePlayer = player2;
+                            playing = true;
+                            botPlaying = true;
+                            String stringBoard = boardToString(board);
+                            sendMessageToPlayer(activePlayer, socket, stringBoard);
+                            break;
+                        } else if (sender.getHostAddress().equals(player1.getHostAddress()) && msgParts[1].equals("yes_bot")) {
+                            activePlayer = player1;
+                            playing = true;
+                            botPlaying = true;
+                            String stringBoard = boardToString(board);
+                            sendMessageToPlayer(activePlayer, socket, stringBoard);
+                            break;
+                        }
                     }
-                }
-                if (player1Ready && player2Ready) {
-                    playing = true;
-                    sendCurrentBoard(board, player1, player2, socket);
-                    if (currentPlayer == false) {
-                        sendMessageToPlayer(player1, socket, "Message: Your Move");
-                    } else if (currentPlayer == true) {
-                        sendMessageToPlayer(player2, socket, "Message: Your Move");
+                    if (player1Ready && player2Ready) {
+                        playing = true;
+                        sendCurrentBoard(board, player1, player2, socket);
+                        if (currentPlayer == false) {
+                            sendMessageToPlayer(player1, socket, "Message: Your Move");
+                        } else if (currentPlayer == true) {
+                            sendMessageToPlayer(player2, socket, "Message: Your Move");
+                        }
+                        System.out.println("Game started");
+                        break; // <-- important
                     }
-                    System.out.println("Game started");
-                    break; // <-- important
+
+                } catch (Exception e) {
+                    System.out.println(e);
                 }
             }
             /**
@@ -138,7 +144,7 @@ public class Server {
 
                     //Makes sure that the move comes from the right player
                     if ((currentPlayer && sender.equals(player2)) || (!currentPlayer && sender.equals(player1))) {
-                        int move = Integer.parseInt(msg);
+                        int move = Integer.parseInt(msgParts[1]);
                         // nur setzen, wenn Feld frei
                         if (move >= 1 && move <= 9) {
                             if (board[move - 1] != 'X' && board[move - 1] != 'O') {
@@ -306,6 +312,7 @@ public class Server {
                         }
                     }
                 }
+
             }
         }
     }
