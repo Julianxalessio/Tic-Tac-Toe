@@ -107,11 +107,9 @@ public class Player1 {
 
 
 		// Spielstartfrage direkt beim Start
-		System.out.print("Start the Game (yes/no) [Add '_bot' if playing with AI]: ");
+		System.out.print("Start the Game (yes/no): ");
 		String startInput = stdin.readLine();
 		if (startInput.equals("yes")) {
-			System.out.println("Game is starting...");
-		} else if (startInput.equals("yes_bot")) {
 			System.out.println("Game is starting...");
 		} else {
 			System.out.println("Thanks for playing!");
@@ -137,8 +135,8 @@ public class Player1 {
 			if (response.contains("Message: Your Move")) {
 				System.out.print("Enter your move: ");
 				String userInput = stdin.readLine();
-
-				byte[] sendData = userInput.getBytes();
+				String msg = serverID + ";" + userInput;
+				byte[] sendData = msg.getBytes();
 				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, server, serverPort);
 				socketSend.send(sendPacket);
 			} else if (response.contains("Message: X won!")) {
@@ -186,7 +184,8 @@ public class Player1 {
 				}
 
 				// Sende Startnachricht an Server
-				startData = startInput.getBytes();
+				String msg = serverID + ";" + startInput;
+				byte[] sendData = msg.getBytes();
 				startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
 				socketSend.send(startPacket);
 			} else if (response.contains("Message: Draw!")) {
@@ -210,7 +209,8 @@ public class Player1 {
 				}
 
 				// Sende Startnachricht an Server
-				startData = startInput.getBytes();
+				String msg = serverID + ";" + startInput;
+				byte[] sendData = msg.getBytes();
 				startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
 				socketSend.send(startPacket);
 			} else if (response.startsWith("____")) {
