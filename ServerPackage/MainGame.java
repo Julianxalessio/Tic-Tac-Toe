@@ -58,10 +58,8 @@ public class MainGame {
 									items--;
 							}
 							if (items <= 0) {
-
-									servers.add(new String[]{msgParts[2], sender.getHostAddress(), msgParts[2], });
+									servers.add(new String[]{msgParts[2], sender.getHostAddress(), ""});
 									//!!! Message Player Server Created
-
 							}
 						}
 					}
@@ -81,6 +79,7 @@ public class MainGame {
 											sendMessageToPlayer(socket, "player;No Ports are avaiable;", sender);
 										} else {
 											servers.get(i)[2] = sender.getHostAddress();
+											sendMessageToPlayer(socket, "serverPort;"+portChosen+";", sender);
 											Server server = new Server(servers.get(i)[1], servers.get(i)[2], msgParts[2], portChosen);
 											//!!! Message both Players Game Starting
 											new Thread(() -> {

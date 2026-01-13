@@ -53,7 +53,7 @@ public class Player1 {
 	public static void main(String[] args) throws Exception {
 
 		InetAddress server = InetAddress.getByName("223.2.1.102"); // Serveradresse
-		int serverPort = 6969; // Server-Port
+		int serverPort = 0; // Server-Port
 		int clientPort = 6970; // Client-Port
 		int startPort = 6971; // Client-Port
 
@@ -87,6 +87,24 @@ public class Player1 {
 		byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
 		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, startPort);
 		socketStart.send(serverStartMessagePacket);
+		try {
+			// Empfang vom Server
+			byte[] receiveBuffer = new byte[1024000];
+			DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+			socketReceive.receive(receivePacket);
+			String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+			String[] responseParts = response.split(";");
+			if (responseParts[0].equals("serverPort")) {
+				serverPort = Integer.parseInt(responseParts[1]);
+				socketSend = new DatagramSocket(serverPort);
+			} else {
+				System.out.println("Serverport has not been detected");
+				System.exit(0);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
 
 		// Spielstartfrage direkt beim Start
 		System.out.print("Start the Game (yes/no) [Add '_bot' if playing with AI]: ");
