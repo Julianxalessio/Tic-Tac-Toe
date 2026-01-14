@@ -112,7 +112,7 @@ public class Server {
                         }
                         //If one of the players stop the application the server will stop and send a message to the players
                         else if (msgParts[1].equals("terminate")){
-                            sender(player1, socket, "terminate");
+                            sendTerminate(player1, socket, "terminate");
                             sendTerminate(player2, socket, "terminate");
                             break;
                         }
