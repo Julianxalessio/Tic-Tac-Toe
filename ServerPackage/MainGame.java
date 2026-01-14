@@ -10,7 +10,7 @@ import java.util.List;
  * <h1>TicTacToe ServerCreator-Script</h1>
  * <h6>Script allows to send messages/responses to Players and creates the Servers for the Tic-tac-toe Game</h6>
  *
- * @version 2.0.1
+ * @version 2.1.0
  * @author Julian Lombardo
  * @author Diego Zwahlen
  * @author Lean Melone
@@ -91,6 +91,7 @@ public class MainGame {
                                     if (tmp[0] == 0) {
                                         portChosen = tmp[1];
                                         tmp[0] = 1;
+                                        break;
                                     }
                                 }
                                 //If no ports are found send that to the player
@@ -107,7 +108,7 @@ public class MainGame {
                                         }
                                     }
                                     //Creates the new serverobjectsender
-                                    Server server = new Server(sender.getHostAddress(), "0.0.0.0", msgParts[2], portChosen, true);
+                                    Server server = new Server(sender.getHostAddress(), "bot", msgParts[2], portChosen, true);
                                     //Starts the server
                                     new Thread(() -> {
                                         try {
@@ -187,6 +188,7 @@ public class MainGame {
                                             if (tmp[0] == 0) {
                                                 portChosen = tmp[1];
                                                 tmp[0] = 1;
+                                                break;
                                             }
                                         }
                                         //If no ports are found send that to the player
@@ -218,6 +220,7 @@ public class MainGame {
                                     } else {
                                         //If the server already has to Players
                                         System.out.println("Server Full");
+                                        sendMessageToPlayer(socket, "Server Full", InetAddress.getByName(servers.get(i)[2]));
                                     }
                                 //Decreases when the serverID and the Object from the forloop are not the same
                                 } else
