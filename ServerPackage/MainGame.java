@@ -1,5 +1,6 @@
 package ServerPackage;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -99,7 +100,7 @@ public class MainGame {
                                     sendMessageToPlayer(socket, "player;No Ports are avaiable;", sender);
                                 } else {
                                     //Sends the port to the Players
-                                    sendMessageToPlayer(socket, "serverPort;" + portChosen + ";", sender);
+                                    sendMessageToPlayer(socket, "serverport;" + portChosen + ";", sender);
 
                                     //Writes into the serverlist which port the new server has
                                     for (String[] entry : servers) {
@@ -138,8 +139,8 @@ public class MainGame {
                                     }
                                 }
                                 //Sends the terminate Message to all Players
-                                sendMessageToPlayer(socket, "terminate", InetAddress.getByName(servers.get(counter)[2]));
-                                sendMessageToPlayer(socket, "terminate", InetAddress.getByName(servers.get(counter)[1]));
+                                sendTerminate(socket, "terminate", InetAddress.getByName(servers.get(counter)[2]));
+                                sendTerminate(socket, "terminate", InetAddress.getByName(servers.get(counter)[1]));
                                 tempEntry = entry;
                             }
                             counter++;
@@ -165,7 +166,10 @@ public class MainGame {
                             }
                             //If server doesnt exist, create a new Server
                             if (items <= 0) {
+
                                 servers.add(new String[]{msgParts[2], sender.getHostAddress(), "", ""});
+                                System.out.println("Send ok to player!");
+                                sendMessageToPlayer(socket, "player;Server created", sender);
                             }
                         }
                     }
@@ -197,8 +201,8 @@ public class MainGame {
                                         } else {
                                             //Sends the port to the Players
                                             servers.get(i)[2] = sender.getHostAddress();
-                                            sendMessageToPlayer(socket, "serverPort;" + portChosen + ";", InetAddress.getByName(servers.get(i)[1]));
-                                            sendMessageToPlayer(socket, "serverPort;" + portChosen + ";", InetAddress.getByName(servers.get(i)[2]));
+                                            sendMessageToPlayer(socket, "serverport;" + portChosen + ";", InetAddress.getByName(servers.get(i)[1]));
+                                            sendMessageToPlayer(socket, "serverport;" + portChosen + ";", InetAddress.getByName(servers.get(i)[2]));
 
                                             //Writes into the serverlist which port the new server has
                                             for (String[] entry : servers) {
@@ -250,6 +254,12 @@ public class MainGame {
     private static void sendMessageToPlayer(DatagramSocket socket, String message, InetAddress address) throws Exception {
         byte[] buffer = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 6970);
+        socket.send(packet);
+    }
+
+    private static void sendTerminate(DatagramSocket socket, String message, InetAddress address) throws IOException {
+        byte[] buffer = message.getBytes();
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 6968);
         socket.send(packet);
     }
 }

@@ -112,8 +112,8 @@ public class Server {
                         }
                         //If one of the players stop the application the server will stop and send a message to the players
                         else if (msgParts[1].equals("terminate")){
-                            sendMessageToPlayer(player1, socket, "terminate");
-                            sendMessageToPlayer(player2, socket, "terminate");
+                            sender(player1, socket, "terminate");
+                            sendTerminate(player2, socket, "terminate");
                             break;
                         }
                         else if (botServer && sender.getHostAddress().equals(player2.getHostAddress()) && msgParts[1].equals("yes")) {
@@ -482,5 +482,10 @@ public class Server {
         byte[] data = msg.getBytes();
         DatagramPacket Message = new DatagramPacket(data, data.length, Player, 6970);
         socket.send(Message);
+    }
+    private static void sendTerminate( InetAddress address, DatagramSocket socket, String message) throws IOException {
+        byte[] buffer = message.getBytes();
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 6968);
+        socket.send(packet);
     }
 }
