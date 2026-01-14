@@ -4,6 +4,8 @@ import javax.swing.border.Border;
 
 import java.awt.*;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class Player_GUI {
     public static JPanel lobby = new JPanel();
@@ -19,33 +21,24 @@ public class Player_GUI {
     private static final Color SUCCESS_COLOR = new Color(46, 213, 115);
     private static final Color BLACK_COLOR = new Color(0, 0, 0);
     
-    Player1 player;
+    static Player1 player;
     public static void main(String[] args) {
         getStartFrame();
-        //getLobbyFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);  
         frame.setVisible(true);
 
-        Player1 player = null;
-        try {
-            player = new Player1();
+        // Initialisiere Player in einem separaten Thread
+        new Thread(() -> {
             try {
+                player = new Player1();
                 player.init();
             } catch (Exception e) {
                 e.printStackTrace();
+                SwingUtilities.invokeLater(() -> alert("Network error: " + e.getMessage()));
             }
-            player.latch.await();
-        } catch (java.net.UnknownHostException | java.net.SocketException e) {
-            e.printStackTrace();
-            alert("Network error: " + e.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            alert("Initialization interrupted: " + e.getMessage());
-        }
-        
-        //playerFound();
+        }).start();
     }
 
     public static void getStartFrame(){
@@ -132,7 +125,12 @@ public class Player_GUI {
                     if (Player1.createJoinServer("Create Server", serverIDInput.getText()) == false) {
                         alert("Server ID already in use! Please choose another one.");
                         return;
-                    } else getLobbyFrame();
+                    } else {
+                        frame.getContentPane().removeAll();
+                        getLobbyFrame();
+                        frame.revalidate();
+                        frame.repaint();
+                    }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -142,7 +140,12 @@ public class Player_GUI {
                     if (Player1.createJoinServer("Create Server_bot", serverIDInput.getText()) == false) {
                         alert("Server ID already in use! Please choose another one.");
                         return;
-                    } else getLobbyFrame();
+                    } else {
+                        frame.getContentPane().removeAll();
+                        getLobbyFrame();
+                        frame.revalidate();
+                        frame.repaint();
+                    }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -210,7 +213,12 @@ public class Player_GUI {
                     if (Player1.createJoinServer("Join Server", serverIDInput.getText()) == false) {
                         alert("Server ID already in use! Please choose another one.");
                         return;
-                    } else getLobbyFrame();
+                    } else {
+                        frame.getContentPane().removeAll();
+                        getLobbyFrame();
+                        frame.revalidate();
+                        frame.repaint();
+                    }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -307,6 +315,18 @@ public class Player_GUI {
         lobby.add(statusPanel, BorderLayout.SOUTH);
         
         frame.add(lobby);
+
+        // Warte auf Gegner in einem separaten Thread
+        new Thread(() -> {
+            try {
+                if (player != null && player.waitForMessage("serverport", "", "")[0].equals("serverport")){
+                    SwingUtilities.invokeLater(() -> Player_GUI.playerFound());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> alert("Error waiting for opponent: " + e.getMessage()));
+            }
+        }).start();
     }
 
     public static void playerFound() {
@@ -377,5 +397,69 @@ public class Player_GUI {
     }
     public static void alert(String message) {
         JOptionPane.showMessageDialog(frame, message, "Alert", JOptionPane.WARNING_MESSAGE);
+    }
+
+    /**
+     * Setzt die Anwendung zurück und startet von vorne
+     */
+    public static void resetApplication() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                // Schließe alle Sockets
+                if (Player1.socketSend != null && !Player1.socketSend.isClosed()) {
+                    Player1.socketSend.close();
+                }
+                if (Player1.socketReceive != null && !Player1.socketReceive.isClosed()) {
+                    Player1.socketReceive.close();
+                }
+                if (Player1.socketStart != null && !Player1.socketStart.isClosed()) {
+                    Player1.socketStart.close();
+                }
+
+                // Setze Player-Variablen zurück
+                Player1.serverPort = 0;
+                Player1.serverID = "";
+                Player1.enteredID = "";
+                Player1.botServer = false;
+                Player1.latch = new java.util.concurrent.CountDownLatch(1);
+
+                // Erstelle neue Sockets
+                Player1.socketSend = new java.net.DatagramSocket(Player1.serverPort);
+                Player1.socketReceive = new java.net.DatagramSocket(Player1.clientPort);
+                Player1.socketStart = new java.net.DatagramSocket(Player1.startPort);
+
+                // Lösche alle Panels
+                frame.getContentPane().removeAll();
+                lobby.removeAll();
+                gamePanel.removeAll();
+                start.removeAll();
+
+                // Erstelle neue Panel-Instanzen
+                lobby = new JPanel();
+                gamePanel = new JPanel();
+                start = new JPanel();
+
+                // Starte GUI von vorne
+                getStartFrame();
+                frame.revalidate();
+                frame.repaint();
+
+                // Erstelle neuen Player und initialisiere
+                player = new Player1();
+                new Thread(() -> {
+                    try {
+                        player.init();
+                        player.latch.await();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        alert("Error during reinitialization: " + e.getMessage());
+                    }
+                }).start();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                alert("Reset failed: " + e.getMessage());
+            }
+        });
     }
 }

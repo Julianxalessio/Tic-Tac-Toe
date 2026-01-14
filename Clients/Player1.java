@@ -143,21 +143,38 @@ public class Player1 {
 			} else if (responseParts[1].equals("Server created")) {
 				success = true;
 				serverID = id;
+			} else if (responseParts[0].equals("serverport")) {
+				serverPort = Integer.parseInt(responseParts[2]);
+				success = true;
+				serverID = id;
 			}
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 		return success;
 	}
-	public static String[] waitForMessage(){
+
+	public static void getTerminate() {
+		System.err.println("Session was closed by the Server!");
+		Player_GUI.resetApplication();
+	}
+	public static String[] waitForMessage(String p1, String p2, String p3) throws IOException {
 		String[] responseParts = null;
 		try {
-			// Empfang vom Server
-			byte[] receiveBuffer = new byte[1024000];
-			DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-			socketReceive.receive(receivePacket);
-			String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-			responseParts = response.split(";");
+			while (true){
+				byte[] receiveBuffer = new byte[1024000];
+				DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+				socketReceive.receive(receivePacket);
+				String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+				responseParts = response.split(";");
+				if (responseParts[0].equals(p1)) {
+					responseParts[0] = "serverport";
+					serverPort = Integer.parseInt(responseParts[2]);
+					return responseParts;
+				} else if (responseParts[0].equals("terminate")) {
+					getTerminate();
+				}
+			}
 		} catch (Exception e) {
 			System.out.println(e);
 		}
