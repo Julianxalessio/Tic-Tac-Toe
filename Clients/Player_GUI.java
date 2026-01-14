@@ -210,7 +210,7 @@ public class Player_GUI {
         submitJoin.setPreferredSize(new Dimension(60, 30));
         submitJoin.addActionListener(e -> {
             try {
-                    if (Player1.createJoinServer("Join Server", serverIDInput.getText()) == false) {
+                    if (Player1.createJoinServer("Join Server", serverIDInputJoin.getText()) == false) {
                         alert("Server ID already in use! Please choose another one.");
                         return;
                     } else {
