@@ -32,20 +32,13 @@ public class Player_GUI {
         // Initialisiere Player in einem separaten Thread
         new Thread(() -> {
             try {
+                Player1.searchTerminate();
                 player = new Player1();
                 player.init();
                 
                 // Starte Termination Listener nachdem Player initialisiert wurde
-                new Thread(() -> {
-                    try {
-                        while (true) {
-                            player.waitForMessage("", "", "");
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }).start();
                 
+                player.latch.await(); // Warte bis die Initialisierung abgeschlossen ist
             } catch (Exception e) {
                 e.printStackTrace();
                 SwingUtilities.invokeLater(() -> alert("Network error: " + e.getMessage()));

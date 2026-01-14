@@ -65,6 +65,7 @@ public class Player1 {
     public static int serverPort = 0; // Server-Port
 	public static int clientPort = 6970; // Client-Port
 	public static int startPort = 6971; // Client-Port
+	public static int portTerminate = 6968; // Terminate-Port
 	public static String serverID = "";
 
 	public static String enteredID = "";
@@ -75,6 +76,15 @@ public class Player1 {
     static {
         try {
             socketSend = new DatagramSocket(serverPort);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+	public static DatagramSocket socketTerminate; // Beliebiger Port für Senden
+    static {
+        try {
+            socketTerminate = new DatagramSocket(portTerminate);
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
@@ -101,6 +111,25 @@ public class Player1 {
     public static BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
 	public static boolean alreadyPlayed = false;
+
+	public static void searchTerminate(){
+		new Thread(() -> {
+			try {
+				while (true) {
+					byte[] receiveBuffer = new byte[1024000];
+					DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+					socketTerminate.receive(receivePacket);
+					String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+					String[] responseParts = response.split(";");
+					if (responseParts[0].equals("terminate")) {
+						getTerminate();
+					}
+				}
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}).start();
+	}
 
 	/**
 	 * Sends a message to the server to inform him, that a terminate just happened
