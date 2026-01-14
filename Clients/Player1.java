@@ -144,7 +144,7 @@ public class Player1 {
 				success = true;
 				serverID = id;
 			} else if (responseParts[0].equals("serverport")) {
-				serverPort = Integer.parseInt(responseParts[2]);
+				serverPort = Integer.parseInt(responseParts[1]);
 				success = true;
 				serverID = id;
 			}
@@ -169,7 +169,7 @@ public class Player1 {
 				responseParts = response.split(";");
 				if (responseParts[0].equals(p1)) {
 					responseParts[0] = "serverport";
-					serverPort = Integer.parseInt(responseParts[2]);
+					serverPort = Integer.parseInt(responseParts[1]);
 					return responseParts;
 				} else if (responseParts[0].equals("terminate")) {
 					getTerminate();
