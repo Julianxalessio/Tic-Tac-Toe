@@ -169,15 +169,15 @@ public class Player1 {
 				success = false;
 			} else if (responseParts[1].equals("Server Exists")) {
 				success = false;
-			} else if (responseParts[1].equals("Server created")) {
-				success = true;
-				serverID = id;
 			} else if (responseParts[0].equals("serverport")) {
 				serverPort = Integer.parseInt(responseParts[1]);
 				success = true;
 				serverID = id;
 				Player_GUI.playerFound();
-			}
+			} else if (responseParts[1].equals("Server created")) {
+				success = true;
+				serverID = id;
+			} 
 		} catch (Exception e) {
 			System.out.println(e);
 		}
