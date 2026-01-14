@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * 
@@ -21,9 +20,9 @@ import java.util.concurrent.CountDownLatch;
  * 
  */
 
-public class Player1 {
+public class Player_backup {
 
-    public Player1() throws UnknownHostException, SocketException {
+    public Player_backup() throws UnknownHostException, SocketException {
     }
 
     /**
@@ -42,6 +41,7 @@ public class Player1 {
 			return String.valueOf(c); // Trennzeichen etc. bleiben normal
 		}
 	}
+
 	public static final String RESET = "\u001B[0m";
 	public static final String GRAY = "\u001B[90m";
 	public static final String RED = "\u001B[31m";
@@ -51,6 +51,7 @@ public class Player1 {
 	 * Variable for Server-IP
 	 */
 	public static InetAddress server; // Serveradresse
+
     static {
         try {
             server = InetAddress.getByName("223.2.1.102");
@@ -58,6 +59,7 @@ public class Player1 {
             throw new RuntimeException(e);
         }
     }
+
 
 	/**
 	 * Defines Server-, Client- and Start-Ports and also the Server-ID
@@ -67,11 +69,8 @@ public class Player1 {
 	public static int startPort = 6971; // Client-Port
 	public static String serverID = "";
 
-	public static String enteredID = "";
-	public static boolean botServer = false;
-	public static CountDownLatch latch = new CountDownLatch(1);
-
 	public static DatagramSocket socketSend; // Beliebiger Port für Senden
+
     static {
         try {
             socketSend = new DatagramSocket(serverPort);
@@ -81,6 +80,7 @@ public class Player1 {
     }
 
     public static DatagramSocket socketReceive; // Empfangsport
+
     static {
         try {
             socketReceive = new DatagramSocket(clientPort);
@@ -90,6 +90,7 @@ public class Player1 {
     }
 
     public static DatagramSocket socketStart; // Empfangsport
+
     static {
         try {
             socketStart = new DatagramSocket(startPort);
@@ -123,52 +124,12 @@ public class Player1 {
 			System.err.println("Session was closed!");
 		}
 	}
-	
-	public static boolean createJoinServer(String serverType, String id) throws IOException {
-		byte[] serverStartMessage = ("main;" + serverType + ";" + id).getBytes();
-		DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, startPort);
-		socketStart.send(serverStartMessagePacket);
-		boolean success = true;
-		try {
-			// Empfang vom Server
-			byte[] receiveBuffer = new byte[1024000];
-			DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-			socketReceive.receive(receivePacket);
-			String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-			String[] responseParts = response.split(";");
-			if (responseParts[0].equals("Server Full")) {
-				success = false;
-			} else if (responseParts[1].equals("Server Exists")) {
-				success = false;
-			} else if (responseParts[1].equals("Server created")) {
-				success = true;
-				serverID = id;
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return success;
-	}
-	public static String[] waitForMessage(){
-		String[] responseParts = null;
-		try {
-			// Empfang vom Server
-			byte[] receiveBuffer = new byte[1024000];
-			DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-			socketReceive.receive(receivePacket);
-			String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-			responseParts = response.split(";");
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return responseParts;
-	}
 	/**
 	 * Main Method with Send-, Receive-, Winning/Draw- and Error-Logic
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void init() throws Exception {
+	public static void main(String[] args) throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 sendTerminate();
@@ -176,15 +137,54 @@ public class Player1 {
                 throw new RuntimeException(e);
             }
         }));
-		latch.countDown();
-	}
-/* 
-	while (true) {
-		if (!gui.frame.isVisible()) {
-			return; // Beendet main, wenn das Fenster geschlossen wurde
-		}
-		while (true) {
 
+		/**
+		 * Winning/Draw-Logic
+		 */
+	while (true) {
+		while (true) {
+			System.out.print("Create a new game or join existing one? (create/join): ");
+			String serverType = stdin.readLine();
+			System.out.println();
+			System.out.print("Enter Server ID (format: 1234): ");
+			serverID = stdin.readLine();
+			System.out.println();
+			if (serverType.equals("create")) {
+				System.out.print("With bot: (yes/no) ");
+				String botType = stdin.readLine();
+				if (botType.equals("yes")) {
+					serverType = "Create Server_bot";
+				} else {
+					serverType = "Create Server";
+				}
+
+			} else if (serverType.equals("join")) {
+				serverType = "Join Server";
+			}
+			byte[] serverStartMessage = ("main;" + serverType + ";" + serverID).getBytes();
+			DatagramPacket serverStartMessagePacket = new DatagramPacket(serverStartMessage, serverStartMessage.length, server, startPort);
+			socketStart.send(serverStartMessagePacket);
+			try {
+				// Empfang vom Server
+				byte[] receiveBuffer = new byte[1024000];
+				DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+				socketReceive.receive(receivePacket);
+				String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+				String[] responseParts = response.split(";");
+				if (responseParts[0].equals("serverPort")) {
+					serverPort = Integer.parseInt(responseParts[1]);
+					socketSend = new DatagramSocket(serverPort);
+				} else if (responseParts[0].equals("Server Full")) {
+					System.out.println("Server Full, try again with another Server ID.");
+					break;
+				}
+				else {
+					System.out.println("Serverport has not been detected");
+					break;
+				}
+			} catch (Exception e) {
+				System.out.println(e);
+			}
 			// Spielstartfrage direkt beim Start
 			System.out.print("Start the Game (yes/no): ");
 			String startInput = stdin.readLine();
@@ -361,5 +361,4 @@ public class Player1 {
 		}
 	}
 	}
-	*/
 }
