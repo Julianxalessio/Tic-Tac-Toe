@@ -147,6 +147,7 @@ public class Player1 {
 				serverPort = Integer.parseInt(responseParts[1]);
 				success = true;
 				serverID = id;
+				Player_GUI.playerFound();
 			}
 		} catch (Exception e) {
 			System.out.println(e);
@@ -157,6 +158,12 @@ public class Player1 {
 	public static void getTerminate() {
 		System.err.println("Session was closed by the Server!");
 		Player_GUI.resetApplication();
+	}
+	public static void startGame() throws IOException {
+		String StartInputWithID = serverID + ";" + "yes";
+		byte[] startData = StartInputWithID.getBytes();
+		DatagramPacket startPacket = new DatagramPacket(startData, startData.length, server, serverPort);
+		socketSend.send(startPacket);
 	}
 	public static String[] waitForMessage(String p1, String p2, String p3) throws IOException {
 		String[] responseParts = null;

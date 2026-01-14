@@ -23,6 +23,15 @@ public class Player_GUI {
     
     static Player1 player;
     public static void main(String[] args) {
+        new Thread(() -> {
+            try {
+                //Termination listener
+                player.waitForMessage("", "", "");
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> alert("Error waiting for opponent: " + e.getMessage()));
+            }
+        }).start();
         getStartFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
@@ -329,6 +338,20 @@ public class Player_GUI {
         }).start();
     }
 
+    public static void getGameFrame() {
+        lobby.setVisible(false);
+        gamePanel.setVisible(true);
+        gamePanel.setLayout(new BorderLayout(20, 20));
+        if (player != null) {
+            try {
+                Player1.startGame();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // Game panel setup can be added here
+        frame.add(gamePanel);
+    }
     public static void playerFound() {
         // Update center panel to show player found
         Component[] components = lobby.getComponents();
@@ -367,6 +390,12 @@ public class Player_GUI {
                 startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
                 startButton.setMaximumSize(new Dimension(250, 50));
                 startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                startButton.addActionListener(e -> {
+                    frame.getContentPane().removeAll();
+                    getGameFrame();
+                    frame.revalidate();
+                    frame.repaint();
+                });
                 
                 // Hover effect
                 startButton.addMouseListener(new java.awt.event.MouseAdapter() {
