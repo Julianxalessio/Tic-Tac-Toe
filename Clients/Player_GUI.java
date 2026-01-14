@@ -23,15 +23,6 @@ public class Player_GUI {
     
     static Player1 player;
     public static void main(String[] args) {
-        new Thread(() -> {
-            try {
-                //Termination listener
-                player.waitForMessage("", "", "");
-            } catch (Exception e) {
-                e.printStackTrace();
-                SwingUtilities.invokeLater(() -> alert("Error waiting for opponent: " + e.getMessage()));
-            }
-        }).start();
         getStartFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
@@ -43,6 +34,18 @@ public class Player_GUI {
             try {
                 player = new Player1();
                 player.init();
+                
+                // Starte Termination Listener nachdem Player initialisiert wurde
+                new Thread(() -> {
+                    try {
+                        while (true) {
+                            player.waitForMessage("", "", "");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                
             } catch (Exception e) {
                 e.printStackTrace();
                 SwingUtilities.invokeLater(() -> alert("Network error: " + e.getMessage()));
