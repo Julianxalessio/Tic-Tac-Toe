@@ -174,7 +174,11 @@ public class Player1 {
 				if (responseParts[0].equals("serverPort")) {
 					serverPort = Integer.parseInt(responseParts[1]);
 					socketSend = new DatagramSocket(serverPort);
-				} else {
+				} else if (responseParts[0].equals("Server Full")) {
+					System.out.println("Server Full, try again with another Server ID.");
+					break;
+				}
+				else {
 					System.out.println("Serverport has not been detected");
 					break;
 				}
